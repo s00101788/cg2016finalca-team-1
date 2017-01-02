@@ -21,6 +21,7 @@ namespace GameClient
         private bool connected;
         private string message;
         private PlayerData playerData;
+        Vector2 worldCoords;
 
         public SpriteFont GameFont { get; private set; }
 
@@ -66,7 +67,34 @@ namespace GameClient
         {
             Action<ErrorMess> err = ShowError;
             proxy.On("error", err);
+
+            Action<int, int> joined = cJoined;
+            proxy.On("joined", joined);
+
+            Action<PlayerData> recievePlayer = clientRecievePlayer;
+            proxy.On("recievePlayer", recievePlayer);
+
+            Action<double> recieveCountDown = clientRecieveStartCount;
+            proxy.On("recieveCountDown", recieveCountDown);
+
+            Action<double> recieveGameCountdown = clientRecieveGameCount;
+            proxy.On("recieveGameCount", recieveGameCountdown);
             // all other messages from Server go here
+        }
+
+        private void clientRecieveGameCount(double obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void clientRecieveStartCount(double obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void clientRecievePlayer(PlayerData obj)
+        {
+            throw new NotImplementedException();
         }
         #region Action delegates for incoming server messages
         private void ShowError(ErrorMess em)
@@ -75,7 +103,18 @@ namespace GameClient
         }
         #endregion
 
+        private void cJoined(int worldX, int roldY)
+        {
+            worldCoords = new Vector2(worldX, roldY);
+            // Setup Camera
+            worldRect = new Rectangle(new Point(0, 0), worldCoords.ToPoint());
+            followCamera = new FollowCamera(this, Vector2.Zero, worldCoords);
+            Joined = true;
+            // Setup Player
+            SetupPlayer();
+            proxy.Invoke("getPlayer", new object[] { "Sarah", "Treanor" });
 
+        }
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
