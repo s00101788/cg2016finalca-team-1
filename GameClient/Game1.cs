@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using TextEffects;
+using Sprites;
+using Cameras;
 
 namespace GameClient
 {
@@ -19,10 +21,20 @@ namespace GameClient
         IHubProxy proxy;
         HubConnection connection;
         private bool connected;
-        private string message;
-        private PlayerData playerData;
-        Vector2 worldCoords;
+        private bool joined;
 
+        private PlayerData playerData;
+        Player player;
+        Vector2 worldCoords;
+        private Rectangle worldRect;
+        private FollowCamera followCamera;
+
+        private string message;
+        private string errorMessage;
+        private string timerMessage;
+        private string GameTimerMessage;
+
+        
         public SpriteFont GameFont { get; private set; }
 
         public Game1()
@@ -31,12 +43,7 @@ namespace GameClient
             Content.RootDirectory = "Content";
         }
 
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
+      
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
@@ -82,19 +89,22 @@ namespace GameClient
             // all other messages from Server go here
         }
 
-        private void clientRecieveGameCount(double obj)
+        private void clientRecieveGameCount(double count)
         {
-            throw new NotImplementedException();
+            GameTimerMessage = "Game over in: " + count.ToString();
         }
 
-        private void clientRecieveStartCount(double obj)
+        private void clientRecieveStartCount(double count)
         {
-            throw new NotImplementedException();
+            timerMessage = "Time to start" + count.ToString();
         }
 
         private void clientRecievePlayer(PlayerData obj)
         {
-            throw new NotImplementedException();
+            if (player != null)
+            {
+                player.PlayerInfo = playerData;
+            }
         }
         #region Action delegates for incoming server messages
         private void ShowError(ErrorMess em)
@@ -109,16 +119,13 @@ namespace GameClient
             // Setup Camera
             worldRect = new Rectangle(new Point(0, 0), worldCoords.ToPoint());
             followCamera = new FollowCamera(this, Vector2.Zero, worldCoords);
-            Joined = true;
+            joined = true;
             // Setup Player
-            SetupPlayer();
-            proxy.Invoke("getPlayer", new object[] { "Sarah", "Treanor" });
+            //SetupPlayer();
+            proxy.Invoke("getPlayer", new object());
 
         }
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
+        
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
@@ -131,20 +138,13 @@ namespace GameClient
             // TODO: use this.Content to load your game content here
         }
 
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// game-specific content.
-        /// </summary>
+     
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
         }
 
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+       
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -156,10 +156,7 @@ namespace GameClient
             base.Update(gameTime);
         }
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
