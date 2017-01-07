@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\collectable.png" />
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>

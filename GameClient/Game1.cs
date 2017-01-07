@@ -34,6 +34,7 @@ namespace GameClient
         private string timerMessage;
         private string GameTimerMessage;
 
+        Texture2D collectable;
         
         public SpriteFont GameFont { get; private set; }
 
@@ -131,8 +132,11 @@ namespace GameClient
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             GameFont = Content.Load<SpriteFont>("GameFont");
+            collectable = Content.Load<Texture2D>("collectable");
             Services.AddService<SpriteFont>(GameFont);
             Services.AddService<SpriteBatch>(spriteBatch);
+
+
             new FadeTextManager(this);
 
             // TODO: use this.Content to load your game content here
@@ -167,10 +171,17 @@ namespace GameClient
                 );
             if (playerData != null )
             {
-                spriteBatch.DrawString(GameFont, 
+                spriteBatch.DrawString(GameFont,
                     playerData.FirstName + " is ok ",
                     new Vector2(20, 20), Color.White
                     );
+                spriteBatch.Begin();
+                spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red);
+                spriteBatch.End();
+                //
+                spriteBatch.Begin();
+                spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
+                spriteBatch.End();
             }
             spriteBatch.End();
             // TODO: Add your drawing code here
