@@ -31,8 +31,8 @@ namespace GameClient
 
         private string message;
         private string errorMessage;
-        private string timerMessage;
-        private string GameTimerMessage;
+        private string timerMessage="";
+        private string GameTimerMessage="";
 
         Texture2D collectable;
         
@@ -175,13 +175,13 @@ namespace GameClient
                     playerData.FirstName + " is ok ",
                     new Vector2(20, 20), Color.White
                     );
-                spriteBatch.Begin();
+               // spriteBatch.Begin();
                 spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red);
-                spriteBatch.End();
+               // spriteBatch.End();
                 //
-                spriteBatch.Begin();
+                //spriteBatch.Begin();
                 spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
-                spriteBatch.End();
+               // spriteBatch.End();
             }
             spriteBatch.End();
             // TODO: Add your drawing code here
