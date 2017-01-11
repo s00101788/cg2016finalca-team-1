@@ -31,11 +31,11 @@ namespace GameClient
 
         private string message;
         private string errorMessage;
-        private string timerMessage;
-        private string GameTimerMessage;
+        private string timerMessage="";
+        private string GameTimerMessage="";
 
         Texture2D collectable;
-        
+        private bool Connected;
         public SpriteFont GameFont { get; private set; }
 
         public Game1()
@@ -68,6 +68,19 @@ namespace GameClient
                     getPlayerData();
                     getCollectableData();
                     break;
+
+                case ConnectionState.Disconnected:
+                    message = "Disconnected.....";
+                    if (state.OldState == ConnectionState.Connected)
+                        message = "Lost Connection....";
+                    Connected = false;
+                    break;
+
+                case ConnectionState.Connecting:
+                    message = "Connecting.....";
+                    Connected = false;
+                    break;
+                    
             }
         }
 
@@ -87,6 +100,8 @@ namespace GameClient
 
             Action<double> recieveGameCountdown = clientRecieveGameCount;
             proxy.On("recieveGameCount", recieveGameCountdown);
+
+            proxy.Invoke("join");
             // all other messages from Server go here
         }
 
@@ -151,10 +166,20 @@ namespace GameClient
        
         protected override void Update(GameTime gameTime)
         {
+            
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             if (!connected) return;
-                
+
+            if (player != null)
+            {
+                player.Update(gameTime);
+                player.Position = Vector2.Clamp(player.Position,
+                    Vector2.Zero,
+                    (worldCoords - new Vector2(player.SpriteWidth, player.SpriteHeight)));
+                followCamera.Follow(player);
+            }
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -175,13 +200,10 @@ namespace GameClient
                     playerData.FirstName + " is ok ",
                     new Vector2(20, 20), Color.White
                     );
-                spriteBatch.Begin();
-                spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red);
-                spriteBatch.End();
-                //
-                spriteBatch.Begin();
+                
+                spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 50), Color.Red);              
                 spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
-                spriteBatch.End();
+              
             }
             spriteBatch.End();
             // TODO: Add your drawing code here
