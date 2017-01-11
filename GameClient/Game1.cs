@@ -200,10 +200,20 @@ namespace GameClient
                     playerData.FirstName + " is ok ",
                     new Vector2(20, 20), Color.White
                     );
+<<<<<<< HEAD
                 
                 spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 50), Color.Red);              
                 spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
               
+=======
+               // spriteBatch.Begin();
+                spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red);
+               // spriteBatch.End();
+                //
+                //spriteBatch.Begin();
+                spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
+               // spriteBatch.End();
+>>>>>>> origin/master
             }
             spriteBatch.End();
             // TODO: Add your drawing code here
