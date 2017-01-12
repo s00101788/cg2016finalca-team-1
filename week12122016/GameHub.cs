@@ -105,6 +105,19 @@ namespace week12122016
 
             }
         }
+
+        public void Send(string name, string message)
+        {
+            Clients.All.broadcastMessage(name, message);
+        }
+
+        public void SendNewPosition(int i1, int i2)
+        {
+            Clients.Others.newPosition(i1, i2);
+
+        }
+
+
         private void TimeToStart_Elapased(object sender, ElapsedEventArgs e)
         {
             if (countDown.TotalSeconds > 0)

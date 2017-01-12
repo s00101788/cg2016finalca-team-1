@@ -34,6 +34,8 @@ namespace GameClient
         private string timerMessage="";
         private string GameTimerMessage="";
 
+        static string name;
+
         Texture2D collectable;
         private bool Connected;
         public SpriteFont GameFont { get; private set; }
@@ -80,8 +82,53 @@ namespace GameClient
                     message = "Connecting.....";
                     Connected = false;
                     break;
-                    
+            
+                case ConnectionState.Disconnected:
+                    Console.WriteLine("Just been disconected");
+                    Console.ReadKey();
+                    break;
+                default:
+                    Console.WriteLine("{0}", state.NewState);
+                    break;
+
             }
+        }
+
+        private void clientChat()
+        {
+            Action<string, string> SendMessageRecieved = recieved_a_message;
+            proxy.On("broadcastMessage", SendMessageRecieved);
+
+            Action<int, int> RecieveInts = recieve_ints;
+            proxy.On("newPosition", RecieveInts);
+
+            connection.Start().Wait();
+            // 
+            Console.Write("Enter your Name: ");
+            name = Console.ReadLine();
+
+            proxy.Invoke("Send", new object[] { name, "Has joined" });
+            Random r = new Random();
+
+            proxy.Invoke("SendNewPosition", new object[] { r.Next(0, 200), r.Next(0, 400) });
+
+            Console.ReadKey();
+            connection.Stop();
+        }
+
+        private static void recieve_ints(int x, int y)
+        {
+            Console.WriteLine("X: {0}, Y: {0}", x, y);
+        }
+
+        private static void recieved_a_message(string sender, string message)
+        {
+            Console.WriteLine("{0} : {1}", sender, message);
+        }
+
+        private static void Connection_Received(string obj)
+        {
+            Console.WriteLine("Message Recieved {0}", obj);
         }
 
         private void subscribeToMessages()
