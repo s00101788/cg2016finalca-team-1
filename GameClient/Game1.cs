@@ -309,9 +309,10 @@ namespace GameClient
             
             foreach (CollectableData c in result)
             {
-                new FadeText(this, Vector2.Zero, 
-                    "Delivered " + c.CollectableName + 
+                new FadeText(this, Vector2.Zero,
+                    "Delivered " + c.CollectableName +
                         " X: " + c.X.ToString() + " Y: " + c.X.ToString());
+                spriteBatch.Draw(collectable);
             }
         }
     }

@@ -4,7 +4,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 namespace GameData
 {
 
@@ -44,7 +46,7 @@ namespace GameData
         public COLLECTABLE_ACTION ACTION;
         public string collectableId;
         public string CollectableName;
-        public int collectableValue;
+        public int collectableValue;        
         public int X;
         public int Y;
     }
