@@ -46,6 +46,9 @@ namespace GameClient
         private bool Connected;
         public SpriteFont GameFont { get; private set; }
 
+        public SpriteFont KeyboardFont;
+
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
