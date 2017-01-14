@@ -55,23 +55,23 @@ namespace Sprites
             base.Update(gameTime);
             // TODO: Add your update logic here
             _direction = DIRECTION.STANDING;
-            if (Keyboard.GetState().IsKeyDown(Keys.Left))
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
                 _direction = DIRECTION.LEFT;
                 base.Move(new Vector2(-1, 0) * _speed);
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.Up))
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
                 _direction = DIRECTION.UP;
                 base.Move(new Vector2(0, -1) * _speed);
             }
             if
-            (Keyboard.GetState().IsKeyDown(Keys.Down))
+            (Keyboard.GetState().IsKeyDown(Keys.S))
             {
                 _direction = DIRECTION.DOWN;
                 base.Move(new Vector2(0, 1) * _speed);
             }
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
                 _direction = DIRECTION.RIGHT;
                 base.Move(new Vector2(1, 0) * _speed);

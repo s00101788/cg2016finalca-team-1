@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using TextEffects;
 using Sprites;
 using Cameras;
+using Microsoft.Xna.Framework.Audio;
 
 namespace GameClient
 {
@@ -24,12 +25,13 @@ namespace GameClient
         private bool joined;
 
         private PlayerData playerData;
-        Player player;
+        public Player player;
         Vector2 worldCoords;
         private Rectangle worldRect;
         private FollowCamera followCamera;
 
         Texture2D backGround;
+        SoundEffect[] sounds;
 
         private string message;
         private string errorMessage;
@@ -39,6 +41,7 @@ namespace GameClient
         static string name;
 
         Texture2D collectable;
+
         private bool Connected;
         public SpriteFont GameFont { get; private set; }
 
@@ -58,6 +61,10 @@ namespace GameClient
             message = "Connecting............";
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
+
+            sounds
+
+            player = new Player(new Texture2D(""),new SoundEffect(1,1,),Vector2.Zero,3,0,1f);
             base.Initialize();
         }
 
@@ -199,6 +206,9 @@ namespace GameClient
             Services.AddService<SpriteBatch>(spriteBatch);
 
             backGround = Content.Load<Texture2D>("Space");
+            sounds = Content.Load<SoundEffect>("footsteps-2");
+
+            player = new Player(new AnimatedSprite(Content.Load<Texture2D>(""), Vector2.Zero, 3), sounds, Vector2.Zero, 3, 0, 1f);
 
             new FadeTextManager(this);
 
