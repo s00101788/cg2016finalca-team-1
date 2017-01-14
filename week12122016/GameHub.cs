@@ -40,8 +40,8 @@ namespace week12122016
         }
         public static TimeSpan countDown = new TimeSpan(0, 0, 0, 10);
         public static Timer TimeToStart = new Timer(1000);
-        public static TimeSpan GameCountdown = new TimeSpan(0, 2, 0);
-        public static Timer GameTimer = new Timer(12000);
+        public static TimeSpan GameCountdown = new TimeSpan(0, 10, 0);
+        public static Timer GameTimer = new Timer(1010);
         public static int WorldX = 2000;
         public static int WorldY = 2000;
 
@@ -58,6 +58,7 @@ namespace week12122016
                 TimeToStart.Elapsed += TimeToStart_Elapased;
                 TimeToStart.Start();
                 GameTimer.Elapsed += GameTimer_Elapsed;
+                GameTimer.Start();
                 return found;
 
             }
@@ -83,7 +84,7 @@ namespace week12122016
                     ACTION = COLLECTABLE_ACTION.DELIVERED,
                     collectableId = Guid.NewGuid().ToString(),
                     CollectableName = "Collecatble " + i.ToString(),
-                    collectableValue = GameSate.RandomNumber(20, 100),
+                    collectableValue = GameSate.RandomNumber(20, 100),                   
                     X = GameSate.RandomNumber(100, WorldX),
                     Y = GameSate.RandomNumber(100, WorldY)
                 });
@@ -94,7 +95,7 @@ namespace week12122016
         {
             if (GameCountdown.TotalMinutes > 0)
             {
-                GameCountdown = GameCountdown.Subtract(new TimeSpan(0, 0, 1));
+                GameCountdown = GameCountdown.Subtract(new TimeSpan(0, 0, 0, 1));
                 Clients.All.recieveGameCount(GameCountdown.TotalMinutes);
             }
             else

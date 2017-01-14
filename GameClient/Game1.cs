@@ -33,8 +33,9 @@ namespace GameClient
 
         private string message;
         private string errorMessage;
-        private string timerMessage= "Error-timerMessage";
-        private string GameTimerMessage= "Error-GameTimerMessage";
+  
+        private string timerMessage= "Time to start: ";
+        private string GameTimerMessage= "Game over in:";
 
         static string name;
 
@@ -55,7 +56,7 @@ namespace GameClient
             
             connection = new HubConnection("http://localhost:5864/");
             proxy = connection.CreateHubProxy("GameHub");
-            message = "Connecting............";
+            message = "Connecting..";
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
             base.Initialize();
@@ -159,7 +160,7 @@ namespace GameClient
 
         private void clientRecieveStartCount(double count)
         {
-            timerMessage = "Time to start" + count.ToString();
+            timerMessage = "Time to start: " + count.ToString();
         }
 
         private void clientRecievePlayer(PlayerData obj)
@@ -259,7 +260,7 @@ namespace GameClient
                // spriteBatch.End();
                 //
                 //spriteBatch.Begin();
-                spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
+                spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White);
                // spriteBatch.End();
 
             }
