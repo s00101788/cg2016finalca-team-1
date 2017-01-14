@@ -29,10 +29,12 @@ namespace GameClient
         private Rectangle worldRect;
         private FollowCamera followCamera;
 
+        Texture2D backGround;
+
         private string message;
         private string errorMessage;
-        private string timerMessage="";
-        private string GameTimerMessage="";
+        private string timerMessage= "Error-timerMessage";
+        private string GameTimerMessage= "Error-GameTimerMessage";
 
         static string name;
 
@@ -196,6 +198,7 @@ namespace GameClient
             Services.AddService<SpriteFont>(GameFont);
             Services.AddService<SpriteBatch>(spriteBatch);
 
+            backGround = Content.Load<Texture2D>("Space");
 
             new FadeTextManager(this);
 
@@ -245,10 +248,10 @@ namespace GameClient
                     playerData.FirstName + " is ok ",
                     new Vector2(20, 20), Color.White
                     );
-
+                spriteBatch.Draw(backGround, worldRect, Color.White);
                 
-                spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 50), Color.Red);              
-                spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
+                //spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 50), Color.Red);              
+                //spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
               
 
                // spriteBatch.Begin();
