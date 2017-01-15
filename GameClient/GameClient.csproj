@@ -86,6 +86,7 @@
     <None Include="app.config" />
     <None Include="Content\GameFont.spritefont" />
     <None Include="Content\keyboardfont.spritefont" />
+    <None Include="Content\Spritefont.spritefont" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
