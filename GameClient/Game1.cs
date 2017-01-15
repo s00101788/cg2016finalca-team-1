@@ -232,7 +232,7 @@ namespace GameClient
             //sounds = Content.Load<SoundEffect>("footsteps-2");
 
 
-            player = new Player(this, "oldman", new Vector2(0, 0), 1, 8,1);
+            player = new Player(this, "oldman", new Vector2(500, 500), 1, 8,1);
 
             new FadeTextManager(this);
 
@@ -275,9 +275,11 @@ namespace GameClient
             if (player != null)
             {
                 player.Update(gameTime);
-                player.position = Vector2.Clamp(player.position,
-                    Vector2.Zero,
-                    (worldCoords - new Vector2(player.SpriteWidth, player.SpriteHeight)));
+                player.position = Vector2.Clamp(player.position, Vector2.Zero,
+                    GraphicsDevice.Viewport.Bounds.Size.ToVector2() -
+                    new Vector2(player._skin.Width / 2,
+                    player._skin.Height / 2));
+
                 if (followCamera != null)
                 {
                     followCamera.Follow(player);

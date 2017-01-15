@@ -46,7 +46,7 @@ namespace GameClient
 
 
         public Texture2D _skin;
-        public Vector2 position = new Vector2(0, 0);
+        public Vector2 position ;
         public Vector2 PreviousPosition = new Vector2(0, 0);
         public int score = 0;
         public int framecount;
@@ -108,20 +108,22 @@ namespace GameClient
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-
+            MouseState mouse = Mouse.GetState();
+            direction = new Vector2(mouse.X, mouse.Y) - position;
 
             Position = position;
             Origin = origin;
             rotation = (float)Math.Atan2(direction.Y, direction.X);
             rotation = rotation + (float)(Math.PI * 0.5f);
             Rotation = rotation;
+            sourceRectangle = new Rectangle(currentFrame * spriteWidth, 0, spriteWidth, this.SpriteHeight);
             spriteBatch.Draw(
-                _skin,
+                this.SpriteImage,
                 position,
-                null,
+                sourceRectangle,
                 Color.White,
                 rotation,
-                origin,
+                origin/8,
                 scale,
                 _effect,
                 0);

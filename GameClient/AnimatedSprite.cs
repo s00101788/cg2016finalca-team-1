@@ -30,7 +30,7 @@ namespace Sprites
         //the current fram in the animation
         //the time between frames
         int numberOfFrames = 1;
-        int currentFrame = 0;
+        public int currentFrame = 0;
         int mililsecondsBetweenFrames = 100;
         float timer = 0f;
 
@@ -82,7 +82,7 @@ namespace Sprites
         }
 
         //the source of our image within the sprite sheet to draw
-        Rectangle sourceRectangle;
+        public Rectangle sourceRectangle;
         public SpriteEffects _effect;
 
         public Rectangle BoundingRect;
@@ -164,7 +164,7 @@ namespace Sprites
             //draw the sprite , specify the postion and source for the image withtin the sprite sheet
             //spriteBatch.Begin();
             // Changed to allow for sprite effect
-            spriteBatch.Draw(spriteImage, Position,sourceRectangle,Color.White,Rotation, Origin, 1.0f,_effect,0f);
+            spriteBatch.Draw(spriteImage, Position,sourceRectangle,Color.White,Rotation, Origin, 1.0f, SpriteEffects.None, 0f);
             //spriteBatch.End();
         }       
 
