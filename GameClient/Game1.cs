@@ -27,7 +27,7 @@ namespace GameClient
         private bool joined;
 
         SpriteFont ScoreFont;
-        enum gamestates {game, scoreboard };
+        enum gamestates {login, game, scoreboard };
         gamestates currentState = gamestates.game;
         private PlayerData playerData;
         public Player player;
@@ -52,8 +52,8 @@ namespace GameClient
         private string message;
         private string errorMessage;
 
-        private string timerMessage = "Time to start: ";
-        private string GameTimerMessage = "Game over in:";
+        private string timerMessage = "Time to start:  ";
+        private string GameTimerMessage = "Game over in: ";
 
         static string name;
 
@@ -165,32 +165,32 @@ namespace GameClient
         private void subscribeToMessages()
         {
             Action<ErrorMess> err = ShowError;
-            proxy.On("error", err);
+            proxy.On("error", err); //ms shows error message
 
             Action<int, int> joined = cJoined;
-            proxy.On("joined", joined);
+            proxy.On("joined", joined);//ms join message
 
             Action<PlayerData> recievePlayer = clientRecievePlayer;
-            proxy.On("recievePlayer", recievePlayer);
+            proxy.On("recievePlayer", recievePlayer); //ms recive player message
 
-            Action<double> recieveCountDown = clientRecieveStartCount;
-            proxy.On("recieveCountDown", recieveCountDown);
+            Action<double> recieveCountDown = clientRecieveStartCount;//ms countdown method
+            proxy.On("recieveCountDown", recieveCountDown); //ms  recive countdown message
 
-            Action<double> recieveGameCountdown = clientRecieveGameCount;
-            proxy.On("recieveGameCount", recieveGameCountdown);
+            Action<double> recieveGameCountdown = clientRecieveGameCount; //coundown for game method
+            proxy.On("recieveGameCount", recieveGameCountdown);//ms recive game countdown message 
 
             proxy.Invoke("join");
             // all other messages from Server go here
         }
-
+        #region Action delegates for incoming server messages
         private void clientRecieveGameCount(double count)
         {
-            GameTimerMessage = "Game over in: " + count.ToString();
+            GameTimerMessage = "Game over in: " + count.ToString(); //ms the format for the game over message
         }
 
         private void clientRecieveStartCount(double count)
         {
-            timerMessage = "Time to start: " + count.ToString();
+            timerMessage = "Time to start: " + count.ToString(); //ms the format for the time to start message
         }
 
         private void clientRecievePlayer(PlayerData obj)
@@ -200,7 +200,7 @@ namespace GameClient
                 player.PlayerInfo = playerData;
             }
         }
-        #region Action delegates for incoming server messages
+        
         private void ShowError(ErrorMess em)
         {
             message = em.message;
@@ -225,7 +225,7 @@ namespace GameClient
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             GameFont = Content.Load<SpriteFont>("GameFont");
-            collectable = Content.Load<Texture2D>("collectable");
+            collectable = Content.Load<Texture2D>("collectable"); //ms collectable texture
             Services.AddService<SpriteFont>(GameFont);
             Services.AddService<SpriteBatch>(spriteBatch);
 
@@ -296,6 +296,7 @@ namespace GameClient
                     followCamera.Follow(player);
 
                 }
+               
             }
             //player.Update(gameTime);
 
@@ -346,11 +347,11 @@ namespace GameClient
 
 
                     // spriteBatch.Begin();
-                    spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red);
+                    spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red); //ms drawing the game timer message
                     // spriteBatch.End();
                     //
                     //spriteBatch.Begin();
-                    spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White);
+                    spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White); //ms drawing the game countdown message
                     // spriteBatch.End();
 
                 }

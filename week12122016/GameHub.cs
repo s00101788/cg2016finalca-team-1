@@ -38,10 +38,10 @@ namespace week12122016
         {
             Clients.All.hello();
         }
-        public static TimeSpan countDown = new TimeSpan(0, 0, 0, 10);
-        public static Timer TimeToStart = new Timer(1000);
-        public static TimeSpan GameCountdown = new TimeSpan(0, 10, 0);
-        public static Timer GameTimer = new Timer(1010);
+        public static TimeSpan countDown = new TimeSpan(0, 0, 0, 30); //ms countdown for the start fo the game
+        public static Timer TimeToStart = new Timer(1000); //ms the timer for counting down in seconds
+        public static TimeSpan GameCountdown = new TimeSpan(0, 5, 0); //ms how long the game lasts 5 mins here
+        public static Timer GameTimer = new Timer(1000);
         public static int WorldX = 2000;
         public static int WorldY = 2000;
 
@@ -55,9 +55,9 @@ namespace week12122016
             if (found != null)
             {
                 Clients.Caller.recievePlayer(found);
-                TimeToStart.Elapsed += TimeToStart_Elapased;
+                TimeToStart.Elapsed += TimeToStart_Elapased; //ms making the methods for the time to start
                 TimeToStart.Start();
-                GameTimer.Elapsed += GameTimer_Elapsed;
+                GameTimer.Elapsed += GameTimer_Elapsed; //ms making method for the game timer
                 GameTimer.Start();
                 return found;
 
@@ -77,15 +77,15 @@ namespace week12122016
         {
             List<CollectableData> collectables = new List<CollectableData>();
 
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++) //ms for each of the collectables print the message int he following format the id at the position x and y
             {
                 collectables.Add(new CollectableData
                 {
                     ACTION = COLLECTABLE_ACTION.DELIVERED,
-                    collectableId = Guid.NewGuid().ToString(),
-                    CollectableName = "Collecatble " + i.ToString(),
-                    collectableValue = GameSate.RandomNumber(20, 100),                   
-                    X = GameSate.RandomNumber(100, WorldX),
+                    collectableId = Guid.NewGuid().ToString(), // collectable id
+                    CollectableName = "Collecatble " + i.ToString(), // the collectable name
+                    collectableValue = GameSate.RandomNumber(20, 100), // collectable value
+                    X = GameSate.RandomNumber(100, WorldX), // the x and y pos
                     Y = GameSate.RandomNumber(100, WorldY)
                 });
             }
@@ -95,14 +95,14 @@ namespace week12122016
         {
             if (GameCountdown.TotalMinutes > 0)
             {
-                GameCountdown = GameCountdown.Subtract(new TimeSpan(0, 0, 0, 1));
+                GameCountdown = GameCountdown.Subtract(new TimeSpan(0, 0, 0, 1)); //ms ticking down the game countdown by miliseconds
                 Clients.All.recieveGameCount(GameCountdown.TotalMinutes);
             }
             else
             {
 
                 GameTimer.Stop();
-                Clients.All.End();
+                Clients.All.End(); //ms ending the clients when the game is over
 
             }
         }
@@ -130,7 +130,7 @@ namespace week12122016
             {
 
                 TimeToStart.Stop();
-                Clients.All.Start();
+                Clients.All.Start(); // starting clients
 
             }
         }
