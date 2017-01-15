@@ -74,12 +74,12 @@ namespace GameClient
             message = "Connecting..";
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
-<<<<<<< HEAD
+
             List<PlayerData> list = GetScores(10);
-=======
+
 
             IsMouseVisible = true;
->>>>>>> origin/master
+
 
             base.Initialize();
         }
