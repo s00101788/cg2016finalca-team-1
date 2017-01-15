@@ -33,11 +33,17 @@ namespace GameClient
         Texture2D backGround;
         SoundEffect[] sounds;
 
+        Vector2 origin;
+        Vector2 scale;
+        Vector2 center;
+        Vector2 mousePos;
+        Vector2 direction;
+
         private string message;
         private string errorMessage;
-  
-        private string timerMessage= "Time to start: ";
-        private string GameTimerMessage= "Game over in:";
+
+        private string timerMessage = "Time to start: ";
+        private string GameTimerMessage = "Game over in:";
 
         static string name;
 
@@ -55,26 +61,24 @@ namespace GameClient
             Content.RootDirectory = "Content";
         }
 
-      
+
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            
+
             connection = new HubConnection("http://localhost:5864/");
             proxy = connection.CreateHubProxy("GameHub");
             message = "Connecting..";
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
 
-            sounds
 
-            player = new Player(new Texture2D(""),new SoundEffect(1,1,),Vector2.Zero,3,0,1f);
             base.Initialize();
         }
 
         private void Connection_StateChanged(StateChange state)
         {
-            switch(state.NewState)
+            switch (state.NewState)
             {
                 case ConnectionState.Connected:
                     connected = true;
@@ -95,8 +99,8 @@ namespace GameClient
                     message = "Connecting.....";
                     Connected = false;
                     break;
-            
-             
+
+
                     break;
                 default:
                     Console.WriteLine("{0}", state.NewState);
@@ -199,7 +203,7 @@ namespace GameClient
             proxy.Invoke("getPlayer", new object());
 
         }
-        
+
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
@@ -210,25 +214,32 @@ namespace GameClient
             Services.AddService<SpriteBatch>(spriteBatch);
 
             backGround = Content.Load<Texture2D>("Space");
-            sounds = Content.Load<SoundEffect>("footsteps-2");
+            //backGround = LoadedGameContent.Textures
 
-            player = new Player(new AnimatedSprite(Content.Load<Texture2D>(""), Vector2.Zero, 3), sounds, Vector2.Zero, 3, 0, 1f);
+            //sounds[0] = Content.Load<SoundEffect>("sounds/footsteps");
+
+            //player = new Player(new Texture2D(""), new SoundEffect(1, 1,), Vector2.Zero, 3, 0, 1f);
+            //sounds = Content.Load<SoundEffect>("footsteps-2");
+
+
+
+            player = new Player(this, backGround, Vector2.Zero, 1, 1);
 
             new FadeTextManager(this);
 
             // TODO: use this.Content to load your game content here
         }
 
-     
+
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
         }
 
-       
+
         protected override void Update(GameTime gameTime)
         {
-            
+
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -237,17 +248,21 @@ namespace GameClient
             if (player != null)
             {
                 player.Update(gameTime);
-                player.Position = Vector2.Clamp(player.Position,
+                player.position = Vector2.Clamp(player.position,
                     Vector2.Zero,
                     (worldCoords - new Vector2(player.SpriteWidth, player.SpriteHeight)));
-                followCamera.Follow(player);
+                if (followCamera != null)
+                {
+                    followCamera.Follow(player);
+
+                }
             }
             // TODO: Add your update logic here
 
             base.Update(gameTime);
         }
 
-        
+
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -256,25 +271,25 @@ namespace GameClient
                 message,
                 new Vector2(200, 20), Color.White
                 );
-            if (playerData != null )
+            if (playerData != null)
             {
                 spriteBatch.DrawString(GameFont,
                     playerData.FirstName + " is ok ",
                     new Vector2(20, 20), Color.White
                     );
                 spriteBatch.Draw(backGround, worldRect, Color.White);
-                
+
                 //spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 50), Color.Red);              
                 //spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
-              
 
-               // spriteBatch.Begin();
+
+                // spriteBatch.Begin();
                 spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red);
-               // spriteBatch.End();
+                // spriteBatch.End();
                 //
                 //spriteBatch.Begin();
                 spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White);
-               // spriteBatch.End();
+                // spriteBatch.End();
 
             }
             spriteBatch.End();
@@ -285,9 +300,10 @@ namespace GameClient
 
         private void getPlayerData()
         {
-            proxy.Invoke<PlayerData>("getPlayer", 
+            proxy.Invoke<PlayerData>("getPlayer",
                                 new string[] { "popple" })
-                .ContinueWith(t => {
+                .ContinueWith(t =>
+                {
                     playerData = t.Result;
                 });
         }
@@ -299,20 +315,23 @@ namespace GameClient
             int count = 10;
             proxy.Invoke<List<CollectableData>>("GetCollectables",
                                 new object[] { count, WorldX, WorldY })
-                .ContinueWith(t => {
+                .ContinueWith(t =>
+                {
                     CreateGameCollecables(t.Result);
                 });
         }
 
         private void CreateGameCollecables(List<CollectableData> result)
         {
-            
+
             foreach (CollectableData c in result)
             {
                 new FadeText(this, Vector2.Zero,
                     "Delivered " + c.CollectableName +
                         " X: " + c.X.ToString() + " Y: " + c.X.ToString());
-                spriteBatch.Draw(collectable);
+                spriteBatch.Begin();
+                spriteBatch.Draw(collectable,Vector2.Zero,Color.White);
+                spriteBatch.End();
             }
         }
     }

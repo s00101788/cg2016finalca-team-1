@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using GameClient;
 
 namespace Cameras
 {
@@ -50,17 +51,17 @@ namespace Cameras
 
 
         // Assumes the character is centered on the screen in the Viewport to begin
-        public void Follow(AnimatedSprite sprite)
+        public void Follow(Player player)
         {
             Vector2 CenterView = new Vector2(GraphicsDevice.Viewport.Width / 2 , GraphicsDevice.Viewport.Height/2 );
             if (
-                sprite.Position.X > CenterView.X &&
-                sprite.Position.X < worldSize.X - CenterView.X)
-                cameraPosition.X += sprite.Position.X - sprite.PreviousPosition.X;
+                player.position.X > CenterView.X &&
+                player.position.X < worldSize.X - CenterView.X)
+                cameraPosition.X += player.position.X - player.PreviousPosition.X;
             if (
-                sprite.Position.Y > CenterView.Y &&
-                sprite.Position.Y < worldSize.Y - CenterView.Y)
-                cameraPosition.Y += sprite.Position.Y - sprite.PreviousPosition.Y;
+                player.position.Y > CenterView.Y &&
+                player.position.Y < worldSize.Y - CenterView.Y)
+                cameraPosition.Y += player.position.Y - player.PreviousPosition.Y;
 
             // Clamp the camera to the world bounds
             cameraPosition = Vector2.Clamp(cameraPosition,

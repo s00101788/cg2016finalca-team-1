@@ -28,7 +28,7 @@ namespace Sprites
         //the number of frames in the sprite sheet
         //the current fram in the animation
         //the time between frames
-        int numberOfFrames = 0;
+        int numberOfFrames = 1;
         int currentFrame = 0;
         int mililsecondsBetweenFrames = 100;
         float timer = 0f;

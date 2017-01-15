@@ -8,12 +8,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using GameData;
-namespace Sprites
+
+namespace GameClient
 {
     public class Player : AnimatedSprite
     {
         public PlayerData PlayerInfo { get; set; }
-        public enum DIRECTION { LEFT, RIGHT, UP, DOWN,STANDING };
+        public enum DIRECTION { LEFT, RIGHT, UP, DOWN, STANDING };
         DIRECTION _direction = DIRECTION.STANDING;
 
         public DIRECTION Direction
@@ -33,48 +34,71 @@ namespace Sprites
             get { return _score; }
             set { _score = value; }
         }
+
+
+        public Texture2D _skin;
+        public Vector2 position = new Vector2(0, 0);
+        public Vector2 PreviousPosition = new Vector2(0, 0);
+        public int score = 0;
+        public int framecount;
+
+        public Player(Game g, Texture2D _Skin, Vector2 Position, int Score,int Framecount) : base(_Skin,Position, Framecount)
+        {
+            _skin = _Skin;
+            position = Position;
+            score = Score;
+            framecount = Framecount;
+        }
+        
+
+
+
         int _health;
         public int Health { get { return _health; } set { _health = value; } }
 
-        public Player(Texture2D[] tx, SoundEffect[] sounds,
-            Vector2 pos, int frameCount, 
-            int startScore, float speed) 
-            : base(tx[0],pos,frameCount)
-        {
-            
-            _speed = speed;
-            _textures = tx;
-            _directionSounds = sounds;
-            _health = 100;
+        //public Player(Texture2D[] tx, SoundEffect[] sounds,
+        //    Vector2 pos, int frameCount, 
+        //    int startScore, float speed) 
+        //    : base(tx[0],pos,frameCount)
+        //{
 
-        }
+        //    _speed = speed;
+        //    _textures = tx;
+        //    _directionSounds = sounds;
+        //    _health = 100;
+
+        //}
 
         public override void Update(GameTime gameTime)
         {
-            PreviousPosition = Position;
+            PreviousPosition = position;
             base.Update(gameTime);
             // TODO: Add your update logic here
             _direction = DIRECTION.STANDING;
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
                 _direction = DIRECTION.LEFT;
-                base.Move(new Vector2(-1, 0) * _speed);
+                position += new Vector2(-1, 0) * _speed;
+                //base.Move(new Vector2(-1, 0) * _speed);
             }
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
                 _direction = DIRECTION.UP;
-                base.Move(new Vector2(0, -1) * _speed);
+                position += new Vector2(0, -1) * _speed;
+                //base.Move(new Vector2(0, -1) * _speed);
             }
             if
             (Keyboard.GetState().IsKeyDown(Keys.S))
             {
                 _direction = DIRECTION.DOWN;
-                base.Move(new Vector2(0, 1) * _speed);
+                position += new Vector2(0, 1) * _speed;
+                //base.Move(new Vector2(0, 1) * _speed);
             }
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
                 _direction = DIRECTION.RIGHT;
-                base.Move(new Vector2(1, 0) * _speed);
+                position += new Vector2(1, 0) * _speed;
+                //base.Move(new Vector2(1, 0) * _speed);
             }
             //else
             //{
@@ -82,7 +106,7 @@ namespace Sprites
             //    _direction = DIRECTION.STANDING;
             //}
 
-            SpriteImage = _textures[(int)_direction];
+            //SpriteImage = _textures[(int)_direction];
 
             //if (_soundPlayer == null || _soundPlayer.State == SoundState.Stopped)
             //{
