@@ -9,6 +9,7 @@ using TextEffects;
 using Sprites;
 using Cameras;
 using Microsoft.Xna.Framework.Audio;
+using System.Linq;
 
 namespace GameClient
 {
@@ -296,6 +297,16 @@ namespace GameClient
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);
+        }
+
+        private List<PlayerData> GetScores(int count)
+        {
+            //List<PlayerData> leaders = new List<PlayerData>();
+
+            using (TestDbContext db = new TestDbContext())
+            {
+                return db.ScoreBoard.Take(count).ToList();
+            }
         }
 
         private void getPlayerData()
