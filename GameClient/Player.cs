@@ -11,7 +11,7 @@ using GameData;
 
 namespace GameClient
 {
-    public class Player : AnimatedSprite
+    public class Player : DrawableGameComponent
     {
         public PlayerData PlayerInfo { get; set; }
         public enum DIRECTION { LEFT, RIGHT, UP, DOWN, STANDING };
@@ -42,7 +42,7 @@ namespace GameClient
         public int score = 0;
         public int framecount;
 
-        public Player(Game g, Texture2D _Skin, Vector2 Position, int Score,int Framecount) : base(_Skin,Position, Framecount)
+        public Player(Game g, string TexName, Vector2 Position, int Score,int Framecount) : base(g)
         {
             _skin = _Skin;
             position = Position;

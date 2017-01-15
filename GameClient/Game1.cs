@@ -222,8 +222,8 @@ namespace GameClient
             //sounds = Content.Load<SoundEffect>("footsteps-2");
 
 
-
-            player = new Player(this, backGround, Vector2.Zero, 1, 1);
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            //player = new Player(this, backGround, Vector2.Zero, 1, 1);
 
             new FadeTextManager(this);
 
@@ -245,18 +245,18 @@ namespace GameClient
                 Exit();
             if (!connected) return;
 
-            if (player != null)
-            {
-                player.Update(gameTime);
-                player.position = Vector2.Clamp(player.position,
-                    Vector2.Zero,
-                    (worldCoords - new Vector2(player.SpriteWidth, player.SpriteHeight)));
-                if (followCamera != null)
-                {
-                    followCamera.Follow(player);
+            //////////////////////////if (player != null)
+            //////////////////////////{
+            //////////////////////////    player.Update(gameTime);
+            //////////////////////////    player.position = Vector2.Clamp(player.position,
+            //////////////////////////        Vector2.Zero,
+            //////////////////////////        (worldCoords - new Vector2(player.SpriteWidth, player.SpriteHeight)));
+            //////////////////////////    if (followCamera != null)
+            //////////////////////////    {
+            //////////////////////////        followCamera.Follow(player);
 
-                }
-            }
+            //////////////////////////    }
+            //////////////////////////}
             // TODO: Add your update logic here
 
             base.Update(gameTime);
