@@ -225,7 +225,7 @@ namespace GameClient
             Services.AddService<SpriteFont>(GameFont);
             Services.AddService<SpriteBatch>(spriteBatch);
 
-            ScoreFont = Content.Load<SpriteFont>(@"Content\Spritefont.spritefont");
+            ScoreFont = Content.Load<SpriteFont>("Spritefont");
             LoadAssets();
 
             backGround = Content.Load<Texture2D>("Space");
@@ -315,6 +315,10 @@ namespace GameClient
                 {
                     spriteBatch.DrawString(ScoreFont, x.GamerTagScore, new Vector2(graphics.PreferredBackBufferHeight / 2, graphics.PreferredBackBufferWidth / 2), Color.White);
                 }
+            }
+            if (currentState == gamestates.game)
+            {
+
 
                 GraphicsDevice.Clear(Color.CornflowerBlue);
                 spriteBatch.Begin();
@@ -352,6 +356,7 @@ namespace GameClient
 
 
                 base.Draw(gameTime);
+            
             }
         }
 
