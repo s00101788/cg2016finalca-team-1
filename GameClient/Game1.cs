@@ -30,6 +30,8 @@ namespace GameClient
         Vector2 worldCoords;
         private Rectangle worldRect;
         private FollowCamera followCamera;
+        SpriteFont scoreBoardfontF, timerF, scorePointsF;
+        int playerScore;
 
         Texture2D backGround;
         SoundEffect[] sounds;
@@ -72,7 +74,7 @@ namespace GameClient
             message = "Connecting..";
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
-
+            List<PlayerData> list = GetScores(10);
 
             base.Initialize();
         }
