@@ -25,6 +25,9 @@ namespace GameClient
         private bool connected;
         private bool joined;
 
+        SpriteFont ScoreFont;
+        enum gamestates {game, scoreboard };
+        gamestates currentState = gamestates.game;
         private PlayerData playerData;
         public Player player;
         Vector2 worldCoords;
@@ -32,6 +35,7 @@ namespace GameClient
         private FollowCamera followCamera;
         SpriteFont scoreBoardfontF, timerF, scorePointsF;
         int playerScore;
+        PlayerData data;
 
         Texture2D backGround;
         SoundEffect[] sounds;
@@ -75,7 +79,7 @@ namespace GameClient
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
 
-            List<PlayerData> list = GetScores(10);
+            List<PlayerData> list = GetScores(5);
 
 
             IsMouseVisible = true;
@@ -221,6 +225,7 @@ namespace GameClient
             Services.AddService<SpriteFont>(GameFont);
             Services.AddService<SpriteBatch>(spriteBatch);
 
+            ScoreFont = Content.Load<SpriteFont>(@"Content\Spritefont.spritefont");
             LoadAssets();
 
             backGround = Content.Load<Texture2D>("Space");
@@ -292,48 +297,64 @@ namespace GameClient
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            //so this is like if the gamestate is equal to the scorebored it does this
             spriteBatch.Begin();
-            spriteBatch.DrawString(GameFont,
-                message,
-                new Vector2(200, 20), Color.White
-                );
-            if (playerData != null)
+            if (currentState == gamestates.scoreboard)
             {
+
+
+
+                GraphicsDevice.Clear(Color.CornflowerBlue);
+                Vector2 v = ScoreFont.MeasureString("string this");
+                Vector2 Base = new Vector2(GraphicsDevice.Viewport.Width / 2, 100);
+                Base += Base + new Vector2(0, ScoreFont.MeasureString(data.GamerTagScore).Y + 10);
+
+                foreach (var x in GetScores(5))
+                {
+                    spriteBatch.DrawString(ScoreFont, x.GamerTagScore, new Vector2(graphics.PreferredBackBufferHeight / 2, graphics.PreferredBackBufferWidth / 2), Color.White);
+                }
+
+                GraphicsDevice.Clear(Color.CornflowerBlue);
+                spriteBatch.Begin();
                 spriteBatch.DrawString(GameFont,
-                    playerData.FirstName + " is ok ",
-                    new Vector2(20, 20), Color.White
+                    message,
+                    new Vector2(200, 20), Color.White
                     );
-                spriteBatch.Draw(backGround, worldRect, Color.White);
+                if (playerData != null)
+                {
+                    spriteBatch.DrawString(GameFont,
+                        playerData.FirstName + " is ok ",
+                        new Vector2(20, 20), Color.White
+                        );
+                    spriteBatch.Draw(backGround, worldRect, Color.White);
 
-                //spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 50), Color.Red);              
-                //spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
+                    //spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 50), Color.Red);              
+                    //spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
 
 
-                // spriteBatch.Begin();
-                spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red);
-                // spriteBatch.End();
-                //
-                //spriteBatch.Begin();
-                spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White);
-                // spriteBatch.End();
+                    // spriteBatch.Begin();
+                    spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red);
+                    // spriteBatch.End();
+                    //
+                    //spriteBatch.Begin();
+                    spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White);
+                    // spriteBatch.End();
 
+                }
+
+                player.Draw(spriteBatch);
+
+                spriteBatch.End();
+                // TODO: Add your drawing code here
+
+
+
+                base.Draw(gameTime);
             }
-
-            player.Draw(spriteBatch);
-
-            spriteBatch.End();
-            // TODO: Add your drawing code here
-
-
-
-            base.Draw(gameTime);
         }
 
         private List<PlayerData> GetScores(int count)
         {
-            //List<PlayerData> leaders = new List<PlayerData>();
-
             using (TestDbContext db = new TestDbContext())
             {
                 return db.ScoreBoard.Take(count).ToList();
