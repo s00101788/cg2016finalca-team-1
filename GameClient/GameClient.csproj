@@ -71,7 +71,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\collectable.png" />
+    <Content Include="Content\dragon.png" />
     <Content Include="Content\key.png" />
+    <Content Include="Content\oldman.png" />
+    <Content Include="Content\sounds\footsteps.mp3" />
+    <Content Include="Content\sounds\footsteps.wav" />
+    <Content Include="Content\Space.jpg" />
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>
