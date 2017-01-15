@@ -11,7 +11,7 @@ using GameData;
 
 namespace GameClient
 {
-    public class Player : DrawableGameComponent
+    public class Player : AnimatedSprite
     {
         public PlayerData PlayerInfo { get; set; }
         public enum DIRECTION { LEFT, RIGHT, UP, DOWN, STANDING };
@@ -29,6 +29,15 @@ namespace GameClient
         SoundEffectInstance _soundPlayer;
         SpriteFont font;
 
+        //Needed to make the sprite turn towards the pointer
+        Vector2 origin;
+        Vector2 scale = new Vector2(1, 1);
+        Vector2 center;
+        Vector2 mousePos;
+        public Vector2 direction;
+        public float rotation;
+        public float speed = 4.5f;
+
         public int Score
         {
             get { return _score; }
@@ -42,14 +51,24 @@ namespace GameClient
         public int score = 0;
         public int framecount;
 
-        public Player(Game g, string TexName, Vector2 Position, int Score,int Framecount) : base(g)
+        public Player(Game g, string TexName, Vector2 Position, int Score, int Framecount) : base(TexName, Position, Framecount)
         {
-            _skin = _Skin;
+            _skin = LoadedGameContent.Textures[TexName];
+
+            //Get centre of sprite
+            origin = new Vector2(_skin.Width / 2, _skin.Height / 2);
+
+            MouseState mouse = Mouse.GetState();
+            direction = new Vector2(mouse.X, mouse.Y) - position;
+            rotation = (float)Math.Atan2(direction.Y, direction.X);
+            rotation = rotation + (float)(Math.PI * 0.5f);
+
+
             position = Position;
             score = Score;
             framecount = Framecount;
         }
-        
+
 
 
 
@@ -68,6 +87,23 @@ namespace GameClient
         //    _health = 100;
 
         //}
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+
+            spriteBatch.Draw(
+                _skin,
+                position,
+                null,
+                Color.White,
+                rotation,
+                origin,
+                scale,
+                SpriteEffects.None,
+                0);
+
+            base.Draw(spriteBatch);
+        }
 
         public override void Update(GameTime gameTime)
         {
@@ -100,6 +136,9 @@ namespace GameClient
                 position += new Vector2(1, 0) * _speed;
                 //base.Move(new Vector2(1, 0) * _speed);
             }
+
+            
+
             //else
             //{
             //    //Position = PreviousPosition;

@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using GameClient;
 
 namespace Sprites
 {
@@ -88,9 +89,9 @@ namespace Sprites
 
         public bool InCollision = false;
 
-        public AnimatedSprite(Texture2D texture,Vector2 userPosition, int framecount)
+        public AnimatedSprite(string texture,Vector2 userPosition, int framecount)
         {
-            spriteImage = texture;
+            spriteImage = LoadedGameContent.Textures[texture];
             Position = userPosition;
             numberOfFrames = framecount;
             spriteHeight = spriteImage.Height;
