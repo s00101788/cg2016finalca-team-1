@@ -72,6 +72,7 @@ namespace GameClient
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
 
+            IsMouseVisible = true;
 
             base.Initialize();
         }
@@ -213,6 +214,8 @@ namespace GameClient
             Services.AddService<SpriteFont>(GameFont);
             Services.AddService<SpriteBatch>(spriteBatch);
 
+            LoadAssets();
+
             backGround = Content.Load<Texture2D>("Space");
             //backGround = LoadedGameContent.Textures
 
@@ -222,18 +225,35 @@ namespace GameClient
             //sounds = Content.Load<SoundEffect>("footsteps-2");
 
 
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            //player = new Player(this, backGround, Vector2.Zero, 1, 1);
+            player = new Player(this, "oldman", new Vector2(0, 0), 1, 8,1);
 
             new FadeTextManager(this);
 
             // TODO: use this.Content to load your game content here
         }
 
+        private void LoadAssets()
+        {
+            //LoadedGameContent.Sounds.Add("backing", Content.Load<SoundEffect>("Backing Track wav"));
+            //LoadedGameContent.Sounds.Add("cannon fire", Game.Content.Load<SoundEffect>("cannon fire"));
+            //LoadedGameContent.Sounds.Add("Impact", Game.Content.Load<SoundEffect>("Impact"));
+            LoadedGameContent.Textures.Add("dragon", Content.Load<Texture2D>("dragon"));
+            LoadedGameContent.Textures.Add("oldman", Content.Load<Texture2D>("oldman"));
+            //LoadedGameContent.Textures.Add("Start Tower", Game.Content.Load<Texture2D>("Start Tower"));
+            //LoadedGameContent.Textures.Add("End Tower", Game.Content.Load<Texture2D>("End Tower"));
+            //LoadedGameContent.Textures.Add("background", Game.Content.Load<Texture2D>("background"));
+            //LoadedGameContent.Textures.Add("Player", Game.Content.Load<Texture2D>("Player"));
+            //LoadedGameContent.Fonts.Add("SimpleSpriteFont", Content.Load<SpriteFont>("SimpleSpriteFont"));
+
+            //_audioPlayer = LoadedGameContent.Sounds["backing"].CreateInstance();
+            //_audioPlayer.Volume = 0.2f;
+            //_audioPlayer.IsLooped = true;
+            //_audioPlayer.Play();
+
+        }
 
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
         }
 
 
@@ -245,19 +265,19 @@ namespace GameClient
                 Exit();
             if (!connected) return;
 
-            //////////////////////////if (player != null)
-            //////////////////////////{
-            //////////////////////////    player.Update(gameTime);
-            //////////////////////////    player.position = Vector2.Clamp(player.position,
-            //////////////////////////        Vector2.Zero,
-            //////////////////////////        (worldCoords - new Vector2(player.SpriteWidth, player.SpriteHeight)));
-            //////////////////////////    if (followCamera != null)
-            //////////////////////////    {
-            //////////////////////////        followCamera.Follow(player);
+            if (player != null)
+            {
+                player.Update(gameTime);
+                player.position = Vector2.Clamp(player.position,
+                    Vector2.Zero,
+                    (worldCoords - new Vector2(player.SpriteWidth, player.SpriteHeight)));
+                if (followCamera != null)
+                {
+                    followCamera.Follow(player);
 
-            //////////////////////////    }
-            //////////////////////////}
-            // TODO: Add your update logic here
+                }
+            }
+            //player.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -292,8 +312,13 @@ namespace GameClient
                 // spriteBatch.End();
 
             }
+
+            player.Draw(spriteBatch);
+
             spriteBatch.End();
             // TODO: Add your drawing code here
+
+
 
             base.Draw(gameTime);
         }

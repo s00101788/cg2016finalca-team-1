@@ -37,6 +37,8 @@ namespace Sprites
         //the width and height of our texture
         protected int spriteWidth = 0;
 
+        public float Rotation { get; set; }
+
         public int SpriteWidth
         {
             get { return spriteWidth; }
@@ -49,6 +51,8 @@ namespace Sprites
             get { return spriteHeight; }
             set { spriteHeight = value; }
         }
+
+        public Vector2 Origin { get; set; }
 
         public Vector2 Position
         {
@@ -79,7 +83,7 @@ namespace Sprites
 
         //the source of our image within the sprite sheet to draw
         Rectangle sourceRectangle;
-        SpriteEffects _effect;
+        public SpriteEffects _effect;
 
         public Rectangle BoundingRect;
 
@@ -98,7 +102,7 @@ namespace Sprites
             spriteWidth = spriteImage.Width / framecount;
             _effect = SpriteEffects.None;
             BoundingRect = new Rectangle((int)this.Position.X, (int)this.Position.Y, this.spriteWidth, this.spriteHeight);
-
+            Rotation = 0f;
         }
 
 
@@ -160,7 +164,7 @@ namespace Sprites
             //draw the sprite , specify the postion and source for the image withtin the sprite sheet
             //spriteBatch.Begin();
             // Changed to allow for sprite effect
-            spriteBatch.Draw(spriteImage, Position,sourceRectangle,Color.White,0f,Vector2.Zero,1.0f,_effect,0f);
+            spriteBatch.Draw(spriteImage, Position,sourceRectangle,Color.White,Rotation, Origin, 1.0f,_effect,0f);
             //spriteBatch.End();
         }       
 

@@ -36,7 +36,7 @@ namespace GameClient
         Vector2 mousePos;
         public Vector2 direction;
         public float rotation;
-        public float speed = 4.5f;
+        //public float speed = 4.5f;
 
         public int Score
         {
@@ -69,6 +69,24 @@ namespace GameClient
             framecount = Framecount;
         }
 
+        public Player(Game g, string TexName, Vector2 Position, int Score, int Framecount, int speed) : base(TexName, Position, Framecount)
+        {
+            _skin = LoadedGameContent.Textures[TexName];
+
+            //Get centre of sprite
+            origin = new Vector2(_skin.Width / 2, _skin.Height / 2);
+
+            MouseState mouse = Mouse.GetState();
+            direction = new Vector2(mouse.X, mouse.Y) - position;
+
+
+            _speed = speed;
+
+            position = Position;
+            score = Score;
+            framecount = Framecount;
+        }
+
 
 
 
@@ -91,6 +109,12 @@ namespace GameClient
         public override void Draw(SpriteBatch spriteBatch)
         {
 
+
+            Position = position;
+            Origin = origin;
+            rotation = (float)Math.Atan2(direction.Y, direction.X);
+            rotation = rotation + (float)(Math.PI * 0.5f);
+            Rotation = rotation;
             spriteBatch.Draw(
                 _skin,
                 position,
@@ -99,7 +123,7 @@ namespace GameClient
                 rotation,
                 origin,
                 scale,
-                SpriteEffects.None,
+                _effect,
                 0);
 
             base.Draw(spriteBatch);
@@ -108,19 +132,23 @@ namespace GameClient
         public override void Update(GameTime gameTime)
         {
             PreviousPosition = position;
-            base.Update(gameTime);
+
             // TODO: Add your update logic here
             _direction = DIRECTION.STANDING;
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
                 _direction = DIRECTION.LEFT;
                 position += new Vector2(-1, 0) * _speed;
+                Position = position;
+
                 //base.Move(new Vector2(-1, 0) * _speed);
             }
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
                 _direction = DIRECTION.UP;
                 position += new Vector2(0, -1) * _speed;
+                Position = position;
+
                 //base.Move(new Vector2(0, -1) * _speed);
             }
             if
@@ -128,16 +156,19 @@ namespace GameClient
             {
                 _direction = DIRECTION.DOWN;
                 position += new Vector2(0, 1) * _speed;
+                Position = position;
+
                 //base.Move(new Vector2(0, 1) * _speed);
             }
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
                 _direction = DIRECTION.RIGHT;
                 position += new Vector2(1, 0) * _speed;
+                Position = position;
                 //base.Move(new Vector2(1, 0) * _speed);
             }
 
-            
+            base.Update(gameTime);
 
             //else
             //{
