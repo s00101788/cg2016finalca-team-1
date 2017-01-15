@@ -225,8 +225,8 @@ namespace GameClient
             Services.AddService<SpriteFont>(GameFont);
             Services.AddService<SpriteBatch>(spriteBatch);
 
-            ScoreFont = Content.Load<SpriteFont>("Spritefont");
             LoadAssets();
+            ScoreFont = LoadedGameContent.Fonts["GameFont"];
 
             backGround = Content.Load<Texture2D>("Space");
             //backGround = LoadedGameContent.Textures
@@ -255,7 +255,7 @@ namespace GameClient
             //LoadedGameContent.Textures.Add("End Tower", Game.Content.Load<Texture2D>("End Tower"));
             //LoadedGameContent.Textures.Add("background", Game.Content.Load<Texture2D>("background"));
             //LoadedGameContent.Textures.Add("Player", Game.Content.Load<Texture2D>("Player"));
-            //LoadedGameContent.Fonts.Add("SimpleSpriteFont", Content.Load<SpriteFont>("SimpleSpriteFont"));
+            LoadedGameContent.Fonts.Add("GameFont", Content.Load<SpriteFont>("GameFont"));
 
             //_audioPlayer = LoadedGameContent.Sounds["backing"].CreateInstance();
             //_audioPlayer.Volume = 0.2f;
