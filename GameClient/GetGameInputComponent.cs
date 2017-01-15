@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace S00141926_ThomasCrudden
+namespace GameClient
 {
 
     class GetGameInputComponent : DrawableGameComponent

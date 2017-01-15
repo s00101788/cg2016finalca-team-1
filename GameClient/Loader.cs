@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Content;
 using System.IO;
 
-namespace S00141926_ThomasCrudden
+namespace GameClient
 {
     static class Loader
     {

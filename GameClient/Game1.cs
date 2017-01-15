@@ -13,9 +13,10 @@ using System.Linq;
 
 namespace GameClient
 {
-    /// <summary>
-    /// This is the main type for your game.
-    /// </summary>
+    public static class Helpers
+    {
+        public static GraphicsDevice GraphicsDevice { get; set; }
+    }
     public class Game1 : Game
     {
         GraphicsDeviceManager graphics;
@@ -83,7 +84,8 @@ namespace GameClient
 
 
             IsMouseVisible = true;
-
+            Helpers.GraphicsDevice = GraphicsDevice;
+            new GetGameInputComponent(this);
 
             base.Initialize();
         }

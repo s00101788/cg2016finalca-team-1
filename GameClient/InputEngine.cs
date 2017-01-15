@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace S00141926_ThomasCrudden
+namespace GameClient
 {
     public class InputEngine : GameComponent
     {
