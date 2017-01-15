@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\collectable.png" />
+    <Content Include="Content\key.png" />
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +79,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="Content\GameFont.spritefont" />
+    <None Include="Content\keyboardfont.spritefont" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
