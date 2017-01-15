@@ -37,6 +37,8 @@ namespace GameClient
         SpriteFont scoreBoardfontF, timerF, scorePointsF;
         int playerScore;
         PlayerData data;
+        private string InGameMessage = string.Empty;
+
 
         Texture2D backGround;
         SoundEffect[] sounds;
@@ -230,6 +232,8 @@ namespace GameClient
             LoadAssets();
             ScoreFont = LoadedGameContent.Fonts["GameFont"];
 
+            KeyboardFont = Content.Load<SpriteFont>("keyboardfont");
+
             backGround = Content.Load<Texture2D>("Space");
             //backGround = LoadedGameContent.Textures
 
@@ -338,6 +342,7 @@ namespace GameClient
 
                     //spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 50), Color.Red);              
                     //spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
+                    spriteBatch.DrawString(KeyboardFont, InGameMessage, new Vector2(10, 10), Color.White);
 
 
                     // spriteBatch.Begin();
