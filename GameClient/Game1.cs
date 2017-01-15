@@ -286,10 +286,10 @@ namespace GameClient
             if (player != null)
             {
                 player.Update(gameTime);
-                player.position = Vector2.Clamp(player.position, Vector2.Zero,
-                    GraphicsDevice.Viewport.Bounds.Size.ToVector2() -
-                    new Vector2(player._skin.Width / 2,
-                    player._skin.Height / 2));
+                //player.position = Vector2.Clamp(player.position, Vector2.Zero,
+                //    GraphicsDevice.Viewport.Bounds.Size.ToVector2() -
+                //    new Vector2(player._skin.Width / 2,
+                //    player._skin.Height / 2));
 
                 if (followCamera != null)
                 {
