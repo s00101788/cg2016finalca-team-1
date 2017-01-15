@@ -321,7 +321,7 @@ namespace GameClient
 
 
                 GraphicsDevice.Clear(Color.CornflowerBlue);
-                spriteBatch.Begin();
+                
                 spriteBatch.DrawString(GameFont,
                     message,
                     new Vector2(200, 20), Color.White
