@@ -10,7 +10,7 @@ namespace ChatClient
 {
     class Program
     {
-        static string name; /
+        static string name; 
         static IHubProxy proxy;
         static HubConnection connection = new HubConnection("http://localhost:5864/");
         static void Main(string[] args)
