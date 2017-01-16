@@ -48,7 +48,7 @@ namespace GameClient
         KeyboardState oldState, newState;
 
         
-
+        //Used with the player sprite
         Vector2 origin;
         Vector2 scale;
         Vector2 center;
@@ -226,7 +226,10 @@ namespace GameClient
             Services.AddService<SpriteFont>(GameFont);
             Services.AddService<SpriteBatch>(spriteBatch);
 
-            LoadAssets();
+
+            LoadAssets();//Loads all content in the game content folder
+
+
             ScoreFont = LoadedGameContent.Fonts["GameFont"];
 
             KeyboardFont = Content.Load<SpriteFont>("keyboardfont");

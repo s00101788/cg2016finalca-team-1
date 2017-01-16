@@ -58,6 +58,7 @@ namespace GameClient
             //Get centre of sprite
             origin = new Vector2(_skin.Width / 2, _skin.Height / 2);
 
+            //Used to make the sprite face the pointer
             MouseState mouse = Mouse.GetState();
             direction = new Vector2(mouse.X, mouse.Y) - position;
             rotation = (float)Math.Atan2(direction.Y, direction.X);
@@ -111,6 +112,7 @@ namespace GameClient
             MouseState mouse = Mouse.GetState();
             direction = new Vector2(mouse.X, mouse.Y) - position;
 
+            //Used to make the sprite face the pointer when drawing
             Position = position;
             Origin = origin;
             rotation = (float)Math.Atan2(direction.Y, direction.X);
