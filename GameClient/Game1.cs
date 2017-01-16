@@ -86,8 +86,8 @@ namespace GameClient
 
 
             IsMouseVisible = true;
-            Helpers.GraphicsDevice = GraphicsDevice;
-            new GetGameInputComponent(this);
+            Helpers.GraphicsDevice = GraphicsDevice; 
+            new GetGameInputComponent(this);// used to create login keyboard
 
             base.Initialize();
         }
@@ -125,34 +125,25 @@ namespace GameClient
             }
         }
 
-        private void clientChat()
+        private void clientChat() // Application for entering your name and sending it to other clients
         {
             Action<string, string> SendMessageRecieved = recieved_a_message;
             proxy.On("broadcastMessage", SendMessageRecieved);
 
-            Action<int, int> RecieveInts = recieve_ints;
-            proxy.On("newPosition", RecieveInts);
-
             connection.Start().Wait();
-            // 
+            
             Console.Write("Enter your Name: ");
             name = Console.ReadLine();
 
             proxy.Invoke("Send", new object[] { name, "Has joined" });
             Random r = new Random();
 
-            proxy.Invoke("SendNewPosition", new object[] { r.Next(0, 200), r.Next(0, 400) });
-
             Console.ReadKey();
             connection.Stop();
         }
 
-        private static void recieve_ints(int x, int y)
-        {
-            Console.WriteLine("X: {0}, Y: {0}", x, y);
-        }
 
-        private static void recieved_a_message(string sender, string message)
+        private static void recieved_a_message(string sender, string message) //Recieve incoming chat messages 
         {
             Console.WriteLine("{0} : {1}", sender, message);
         }

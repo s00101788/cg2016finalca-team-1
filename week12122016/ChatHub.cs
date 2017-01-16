@@ -13,7 +13,7 @@ namespace week12122016
             Clients.All.hello();
         }
 
-        public void Send(string name, string message)
+        public void Send(string name, string message) //broadcast messages from one client to all other clients when sent
         {
             Clients.All.broadcastMessage(name, message);
 
