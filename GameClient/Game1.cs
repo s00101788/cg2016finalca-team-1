@@ -39,9 +39,15 @@ namespace GameClient
         PlayerData data;
         private string InGameMessage = string.Empty;
 
+        Menu menu;
+        string[] menuOptions = new string[] { "Fast", "Normal", "Strong" };
 
         Texture2D backGround;
         SoundEffect[] sounds;
+
+        KeyboardState oldState, newState;
+
+        
 
         Vector2 origin;
         Vector2 scale;
@@ -228,6 +234,13 @@ namespace GameClient
             backGround = Content.Load<Texture2D>("Space");
             //backGround = LoadedGameContent.Textures
 
+
+
+            menu = new Menu(new Vector2(300, 250), menuOptions, KeyboardFont, GetMenuTextureArray()); //create the menu
+
+            menu.Active = true; //set menu active
+
+
             //sounds[0] = Content.Load<SoundEffect>("sounds/footsteps");
 
             //player = new Player(new Texture2D(""), new SoundEffect(1, 1,), Vector2.Zero, 3, 0, 1f);
@@ -241,6 +254,26 @@ namespace GameClient
             // TODO: use this.Content to load your game content here
         }
 
+        private Texture2D[] GetMenuTextureArray()
+        {
+            string[] _tex;
+
+            _tex = new string[3];
+            _tex[0] = "key";
+            _tex[1] = "collectable";
+            _tex[2] = "dragon";
+
+            Texture2D[] Tex;
+            Tex = new Texture2D[_tex.Length];
+
+            for (int i = 0; i < _tex.Length; i++)
+            {
+                Tex[i] = LoadedGameContent.Textures[_tex[i]];
+            }
+
+            return Tex;
+        }
+
         private void LoadAssets()
         {
             //LoadedGameContent.Sounds.Add("backing", Content.Load<SoundEffect>("Backing Track wav"));
@@ -248,8 +281,8 @@ namespace GameClient
             //LoadedGameContent.Sounds.Add("Impact", Game.Content.Load<SoundEffect>("Impact"));
             LoadedGameContent.Textures.Add("dragon", Content.Load<Texture2D>("dragon"));
             LoadedGameContent.Textures.Add("oldman", Content.Load<Texture2D>("oldman"));
-            //LoadedGameContent.Textures.Add("Start Tower", Game.Content.Load<Texture2D>("Start Tower"));
-            //LoadedGameContent.Textures.Add("End Tower", Game.Content.Load<Texture2D>("End Tower"));
+            LoadedGameContent.Textures.Add("key", Content.Load<Texture2D>("key"));
+            LoadedGameContent.Textures.Add("collectable", Content.Load<Texture2D>("collectable"));
             //LoadedGameContent.Textures.Add("background", Game.Content.Load<Texture2D>("background"));
             //LoadedGameContent.Textures.Add("Player", Game.Content.Load<Texture2D>("Player"));
             LoadedGameContent.Fonts.Add("GameFont", Content.Load<SpriteFont>("GameFont"));
@@ -268,7 +301,7 @@ namespace GameClient
 
         protected override void Update(GameTime gameTime)
         {
-
+            newState = Keyboard.GetState(); //set the current keyboardState
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -291,9 +324,11 @@ namespace GameClient
             }
             //player.Update(gameTime);
 
+
             base.Update(gameTime);
         }
 
+        
 
         protected override void Draw(GameTime gameTime)
         {

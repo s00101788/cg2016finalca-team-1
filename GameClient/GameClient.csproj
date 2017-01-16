@@ -51,6 +51,8 @@
     <Compile Include="InputManager.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="LoadGameContent.cs" />
+    <Compile Include="Menu.cs" />
+    <Compile Include="MenuItem.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
