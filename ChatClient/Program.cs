@@ -27,7 +27,6 @@ namespace ChatClient
             name = Console.ReadLine();
 
             proxy.Invoke("Send", new object[] { name, "Has joined" });
-            Random r = new Random();
 
             proxy.Invoke("SendNewPosition", new object[] { r.Next(0, 200), r.Next(0, 400) });
 
