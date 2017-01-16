@@ -82,8 +82,8 @@ namespace GameClient
         {
             // TODO: Add your initialization logic here
 
-            connection = new HubConnection("http://localhost:5864/");
-            proxy = connection.CreateHubProxy("GameHub");
+            //connection = new HubConnection("http://localhost:5864/");
+            connection = new HubConnection("http://testingcg2016t2.azurewebsites.net"); 
             message = "Connecting..";
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
