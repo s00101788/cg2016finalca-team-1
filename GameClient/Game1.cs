@@ -131,18 +131,17 @@ namespace GameClient
             }
         }
 
-        private void clientChat() // Application for entering your name and sending it to other clients
+        private void clientChat() 
         {
             Action<string, string> SendMessageRecieved = recieved_a_message;
             proxy.On("broadcastMessage", SendMessageRecieved);
 
             connection.Start().Wait();
             
-            Console.Write("Enter your Name: ");
+            Console.Write("Enter your Name: ");// Application for entering your name and sending it to other clients
             name = Console.ReadLine();
 
             proxy.Invoke("Send", new object[] { name, "Has joined" });
-            Random r = new Random();
 
             Console.ReadKey();
             connection.Stop();
