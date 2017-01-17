@@ -27,8 +27,8 @@ namespace GameClient
         private bool joined;
 
         SpriteFont ScoreFont;
-        enum gamestates {login, game, scoreboard };
-        gamestates currentState = gamestates.game;
+        public enum gamestates { login, game, scoreboard };
+        gamestates currentState = gamestates.login;
         private PlayerData playerData;
         public Player player;
         Vector2 worldCoords;
@@ -47,7 +47,7 @@ namespace GameClient
 
         KeyboardState oldState, newState;
 
-        
+
         //Used with the player sprite
         Vector2 origin;
         Vector2 scale;
@@ -83,7 +83,7 @@ namespace GameClient
             // TODO: Add your initialization logic here
 
             //connection = new HubConnection("http://localhost:5864/");
-            connection = new HubConnection("http://testingcg2016t2.azurewebsites.net"); 
+            connection = new HubConnection("http://testingcg2016t2.azurewebsites.net");
             message = "Connecting..";
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
@@ -92,7 +92,7 @@ namespace GameClient
 
 
             IsMouseVisible = true;
-            Helpers.GraphicsDevice = GraphicsDevice; 
+            Helpers.GraphicsDevice = GraphicsDevice;
             new GetGameInputComponent(this);// used to create login keyboard
 
             base.Initialize();
@@ -131,13 +131,13 @@ namespace GameClient
             }
         }
 
-        private void clientChat() 
+        private void clientChat()
         {
             Action<string, string> SendMessageRecieved = recieved_a_message;
             proxy.On("broadcastMessage", SendMessageRecieved);
 
             connection.Start().Wait();
-            
+
             Console.Write("Enter your Name: ");// Application for entering your name and sending it to other clients
             name = Console.ReadLine();
 
@@ -196,7 +196,7 @@ namespace GameClient
                 player.PlayerInfo = playerData;
             }
         }
-        
+
         private void ShowError(ErrorMess em)
         {
             message = em.message;
@@ -249,7 +249,7 @@ namespace GameClient
             //sounds = Content.Load<SoundEffect>("footsteps-2");
 
 
-            player = new Player(this, "oldman", new Vector2(500, 500), 1, 8,1);
+            player = new Player(this, "oldman", new Vector2(500, 500), 1, 8, 1);
 
             new FadeTextManager(this);
 
@@ -309,33 +309,50 @@ namespace GameClient
                 Exit();
             if (!connected) return;
 
-            if (player != null)
-            {
-                player.Update(gameTime);
-                //player.position = Vector2.Clamp(player.position, Vector2.Zero,
-                //    GraphicsDevice.Viewport.Bounds.Size.ToVector2() -
-                //    new Vector2(player._skin.Width / 2,
-                //    player._skin.Height / 2));
 
-                if (followCamera != null)
+
+            if (currentState == gamestates.login)
+            {
+
+            }
+            else if (currentState == gamestates.game)
+            {
+                if (player != null)
                 {
-                    followCamera.Follow(player);
+                    player.Update(gameTime);
+                    //player.position = Vector2.Clamp(player.position, Vector2.Zero,
+                    //    GraphicsDevice.Viewport.Bounds.Size.ToVector2() -
+                    //    new Vector2(player._skin.Width / 2,
+                    //    player._skin.Height / 2));
+
+                    if (followCamera != null)
+                    {
+                        followCamera.Follow(player);
+
+                    }
 
                 }
-               
             }
+            else if (currentState == gamestates.scoreboard)
+            {
+
+            }
+
+
+
             //player.Update(gameTime);
 
 
             base.Update(gameTime);
         }
 
-        
+
 
         protected override void Draw(GameTime gameTime)
         {
             //so this is like if the gamestate is equal to the scorebored it does this
             spriteBatch.Begin();
+
             if (currentState == gamestates.scoreboard)
             {
 
@@ -356,7 +373,7 @@ namespace GameClient
 
 
                 GraphicsDevice.Clear(Color.CornflowerBlue);
-                
+
                 spriteBatch.DrawString(GameFont,
                     message,
                     new Vector2(200, 20), Color.White
@@ -381,10 +398,10 @@ namespace GameClient
                     //spriteBatch.Begin();
                     spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White); //ms drawing the game countdown message
                     // spriteBatch.End();
+                player.Draw(spriteBatch);
 
                 }
 
-                player.Draw(spriteBatch);
 
                 spriteBatch.End();
                 // TODO: Add your drawing code here
@@ -392,7 +409,7 @@ namespace GameClient
 
 
                 base.Draw(gameTime);
-            
+
             }
         }
 
@@ -436,7 +453,7 @@ namespace GameClient
                     "Delivered " + c.CollectableName +
                         " X: " + c.X.ToString() + " Y: " + c.X.ToString());
                 spriteBatch.Begin();
-                spriteBatch.Draw(collectable,Vector2.Zero,Color.White);
+                spriteBatch.Draw(collectable, Vector2.Zero, Color.White);
                 spriteBatch.End();
             }
         }

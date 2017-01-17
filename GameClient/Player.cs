@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using GameData;
+using static GameClient.Game1;
 
 namespace GameClient
 {
@@ -109,6 +110,9 @@ namespace GameClient
 
         public override void Draw(SpriteBatch spriteBatch)
         {
+            
+
+
             MouseState mouse = Mouse.GetState();
             direction = new Vector2(mouse.X, mouse.Y) - position;
 
