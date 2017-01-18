@@ -53,9 +53,14 @@ namespace GameClient
         //for group message i think
         private FadeText groupMessage;
 
+        private bool loggedIn = false;
+        private bool loggedInFailed = false;
+
+
         //for other players
         private List<Player> OtherPlayers = new List<Player>();
         #endregion
+
 
 
         Menu menu;
@@ -90,7 +95,9 @@ namespace GameClient
         public SpriteFont GameFont { get; private set; }
 
         public SpriteFont KeyboardFont;
-
+        private string validatePlayerMessage;
+        private string chatMessage;
+        private string playerValidationMessage;
 
         public Game1()
         {
@@ -183,8 +190,8 @@ namespace GameClient
             #region new code
             //message for validate player
 
-            //  Action<PlayerData> ValidatePlayer = valid_Player;
-            //  proxy.On("PlayerValidated", ValidatePlayer);
+            Action<PlayerData> ValidatePlayer = valid_Player;
+            proxy.On("PlayerValidated", ValidatePlayer);
 
             //message for spawing in the player
 
@@ -357,6 +364,39 @@ namespace GameClient
 
             if (currentState == gamestates.login)
             {
+                CheckLogedInPlayers();
+
+                if (InputEngine.IsKeyPressed(Keys.F10) && !loginKey.Visible)
+                {
+                    loginKey.Visible = true;
+                    //Clears anything written before this point
+                    InputEngine.ClearState();
+                }
+
+                if (loginKey.Done)
+                {
+                    gamerTag = loginKey.Name;
+                    password = loginKey.Password;
+                    loginKey.Clear();
+                    InputEngine.ClearState();
+
+                    //checks to see if the connection is connected
+                    if (connection.State == ConnectionState.Connected)
+                        if (gamerTag != null && password != null)
+                        {
+                            getPlayer();
+                            subscribeToMessages();
+                            CheckLogedInPlayers();
+                            //getPlayerData();                
+                        }
+
+                }
+
+                if (loggedIn == true)
+                {
+                    if (allLogedInPlayers.Count >= 2)         
+                            currentState = gamestates.game;
+                }
 
             }
             else if (currentState == gamestates.game)
@@ -412,6 +452,39 @@ namespace GameClient
                     spriteBatch.DrawString(ScoreFont, x.GamerTagScore, new Vector2(graphics.PreferredBackBufferHeight / 2, graphics.PreferredBackBufferWidth / 2), Color.White);
                 }
             }
+
+            if (currentState == gamestates.login)
+            {
+                GraphicsDevice.Clear(Color.Black);
+                string helperMessage = "Press F10";
+                spriteBatch.DrawString(GameFont, helperMessage, new Vector2(500, 20), Color.White);
+
+                if (loggedIn != false || loggedInFailed != false)
+                    if (playerData != null)
+                        spriteBatch.DrawString(GameFont, validatePlayerMessage, new Vector2(200, 50), Color.White);
+                //else
+                //spriteBatch.DrawString(GameFont, errorMessage, new Vector2(200, 50), Color.White);
+
+                int count = 0;
+
+                if (allLogedInPlayers != null)
+                {
+
+                    foreach (PlayerData player in allLogedInPlayers)
+                    {
+                        string playerMessage = "Player " + player.GamerTag + " is Connected";
+
+                        if (player.GamerTag != playerData.GamerTag)
+                            spriteBatch.DrawString(GameFont, playerMessage, new Vector2(200, 60 + count), Color.White);
+
+                        count += 30;
+                    }
+                }
+
+                //if (allLogedInPlayers.Count >= 2) ;
+                //    //btnSubmit.Draw(spriteBatch);
+            }
+
             if (currentState == gamestates.game)
             {
 
@@ -461,6 +534,42 @@ namespace GameClient
             }
         }
 
+        private void typeMessage()
+        {
+            loginKey.Visible = true;
+            //Clears anything written before this point
+            InputEngine.ClearState();
+
+            if (loginKey.Done)
+            {
+                chatMessage = loginKey.Name;
+                loginKey.Clear();
+                InputEngine.ClearState();
+
+                //checks to see if the connection is connected
+                if (chatMessage != null)
+                {
+                    sendAllClientMessage(chatMessage);
+                }
+
+            }
+        }
+
+        private void sendAllClientMessage(string textMessage)
+        {
+            proxy.Invoke("SendGroupMessage", new string[] { textMessage });
+        }
+
+        private void valid_Player(PlayerData player)
+        {
+            loggedIn = true;
+            playerData = player;
+
+            validatePlayerMessage = "PlayerValidated GamerTag is " + player.GamerTag;
+
+            getPlayerData();
+        }
+
         private void getPlayerData()
         {
             proxy.Invoke<PlayerData>("getPlayer",
@@ -482,6 +591,26 @@ namespace GameClient
                 {
                     CreateGameCollecables(t.Result);
                 });
+        }
+
+        private void CheckLogedInPlayers()
+        {
+            Action<List<PlayerData>> AllLogedInPlayers = ShowPlayers;
+            proxy.On("PlayersValidated", AllLogedInPlayers);
+        }
+
+        private void getPlayer()
+        {
+            proxy.Invoke("ValidatePlayer", new string[] { gamerTag, password });
+        }
+
+        private void ShowPlayers(List<PlayerData> LogedInPlayers)
+        {
+            loggedIn = true;
+
+            //if(LogedInPlayers.Contains(playerData))
+
+            allLogedInPlayers = LogedInPlayers;
         }
 
         private void CreateGameCollecables(List<CollectableData> result)
