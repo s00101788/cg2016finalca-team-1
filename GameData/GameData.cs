@@ -51,8 +51,8 @@ namespace GameData
     public class Joined
     {
         public string playerID;
-        public int X;
-        public int Y;
+        public float X;
+        public float Y;
         public string imageName;
     }
 

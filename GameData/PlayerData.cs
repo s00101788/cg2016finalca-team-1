@@ -11,6 +11,7 @@ namespace GameData
         public int PlayerID { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
+        public string Password { get; set; }
         public string Tag { get; set; }
         public int XP { get; set; }
         public Guid playerid;
