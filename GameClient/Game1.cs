@@ -63,6 +63,8 @@ namespace GameClient
 
         static string name;
 
+        private GetGameInputComponent loginKey;
+
         Texture2D collectable;
 
         private bool Connected;
@@ -88,7 +90,7 @@ namespace GameClient
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
 
-            List<PlayerData> list = GetScores(5);
+           // List<PlayerData> list = GetScores(5);
 
 
             IsMouseVisible = true;
@@ -110,23 +112,23 @@ namespace GameClient
                     getCollectableData();
                     break;
 
-                case ConnectionState.Disconnected:
-                    message = "Disconnected.....";
-                    if (state.OldState == ConnectionState.Connected)
-                        message = "Lost Connection....";
-                    Connected = false;
-                    break;
+                //case ConnectionState.Disconnected:
+                //    message = "Disconnected.....";
+                //    if (state.OldState == ConnectionState.Connected)
+                //        message = "Lost Connection....";
+                //    Connected = false;
+                //    break;
 
-                case ConnectionState.Connecting:
-                    message = "Connecting.....";
-                    Connected = false;
-                    break;
+                //case ConnectionState.Connecting:
+                //    message = "Connecting.....";
+                //    Connected = false;
+                //    break;
 
 
-                    break;
-                default:
-                    Console.WriteLine("{0}", state.NewState);
-                    break;
+                //    break;
+                //default:
+                //    Console.WriteLine("{0}", state.NewState);
+                //    break;
 
             }
         }
@@ -350,7 +352,7 @@ namespace GameClient
 
         protected override void Draw(GameTime gameTime)
         {
-            //so this is like if the gamestate is equal to the scorebored it does this
+            
             spriteBatch.Begin();
 
             if (currentState == gamestates.scoreboard)
@@ -386,18 +388,14 @@ namespace GameClient
                         );
                     spriteBatch.Draw(backGround, worldRect, Color.White);
 
-                    //spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 50), Color.Red);              
-                    //spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(20, GraphicsDevice.Viewport.Width / 2), Color.White);
+                    
                     spriteBatch.DrawString(KeyboardFont, InGameMessage, new Vector2(10, 10), Color.White);
 
 
-                    // spriteBatch.Begin();
                     spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red); //ms drawing the game timer message
-                    // spriteBatch.End();
-                    //
-                    //spriteBatch.Begin();
+                   
                     spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White); //ms drawing the game countdown message
-                    // spriteBatch.End();
+                   
                 player.Draw(spriteBatch);
 
                 }
@@ -452,9 +450,9 @@ namespace GameClient
                 new FadeText(this, Vector2.Zero,
                     "Delivered " + c.CollectableName +
                         " X: " + c.X.ToString() + " Y: " + c.X.ToString());
-                spriteBatch.Begin();
-                spriteBatch.Draw(collectable, Vector2.Zero, Color.White);
-                spriteBatch.End();
+               
+                spriteBatch.Draw(collectable);
+            
             }
         }
     }

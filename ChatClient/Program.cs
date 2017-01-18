@@ -28,7 +28,7 @@ namespace ChatClient
 
             proxy.Invoke("Send", new object[] { name, "Has joined" });
 
-            proxy.Invoke("SendNewPosition", new object[] { r.Next(0, 200), r.Next(0, 400) });
+           // proxy.Invoke("SendNewPosition", new object[] { r.Next(0, 200), r.Next(0, 400) });
 
             Console.ReadKey();
             connection.Stop();
