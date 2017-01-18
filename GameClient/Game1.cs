@@ -143,21 +143,7 @@ namespace GameClient
             }
         }
 
-        private void clientChat()
-        {
-            Action<string, string> SendMessageRecieved = recieved_a_message;
-            proxy.On("broadcastMessage", SendMessageRecieved);
 
-            connection.Start().Wait();
-
-            Console.Write("Enter your Name: ");// Application for entering your name and sending it to other clients
-            name = Console.ReadLine();
-
-            proxy.Invoke("Send", new object[] { name, "Has joined" });
-
-            Console.ReadKey();
-            connection.Stop();
-        }
 
 
         private static void recieved_a_message(string sender, string message) //Recieve incoming chat messages 
@@ -361,7 +347,7 @@ namespace GameClient
             if (!connected) return;
 
 
-
+            #region new code
             if (currentState == gamestates.login)
             {
                 CheckLogedInPlayers();
@@ -394,11 +380,13 @@ namespace GameClient
 
                 if (loggedIn == true)
                 {
-                    if (allLogedInPlayers.Count >= 2)         
-                            currentState = gamestates.game;
+                    if (allLogedInPlayers.Count >= 2)
+                        currentState = gamestates.game;
                 }
 
             }
+            #endregion
+
             else if (currentState == gamestates.game)
             {
                 if (player != null)
@@ -453,6 +441,7 @@ namespace GameClient
                 }
             }
 
+            #region new code
             if (currentState == gamestates.login)
             {
                 GraphicsDevice.Clear(Color.Black);
@@ -477,7 +466,7 @@ namespace GameClient
                         if (player.GamerTag != playerData.GamerTag)
                             spriteBatch.DrawString(GameFont, playerMessage, new Vector2(200, 60 + count), Color.White);
 
-                        count += 30;
+                        
                     }
                 }
 
@@ -514,7 +503,7 @@ namespace GameClient
                 player.Draw(spriteBatch);
 
                 }
-
+                #endregion
 
                 spriteBatch.End();
                 // TODO: Add your drawing code here
@@ -534,6 +523,7 @@ namespace GameClient
             }
         }
 
+        #region new code
         private void typeMessage()
         {
             loginKey.Visible = true;
@@ -554,7 +544,9 @@ namespace GameClient
 
             }
         }
+        #endregion
 
+        #region new code
         private void sendAllClientMessage(string textMessage)
         {
             proxy.Invoke("SendGroupMessage", new string[] { textMessage });
@@ -569,6 +561,7 @@ namespace GameClient
 
             getPlayerData();
         }
+        #endregion
 
         private void getPlayerData()
         {
@@ -593,12 +586,13 @@ namespace GameClient
                 });
         }
 
+        #region new code
         private void CheckLogedInPlayers()
         {
             Action<List<PlayerData>> AllLogedInPlayers = ShowPlayers;
             proxy.On("PlayersValidated", AllLogedInPlayers);
         }
-
+         
         private void getPlayer()
         {
             proxy.Invoke("ValidatePlayer", new string[] { gamerTag, password });
@@ -612,6 +606,7 @@ namespace GameClient
 
             allLogedInPlayers = LogedInPlayers;
         }
+#endregion
 
         private void CreateGameCollecables(List<CollectableData> result)
         {
