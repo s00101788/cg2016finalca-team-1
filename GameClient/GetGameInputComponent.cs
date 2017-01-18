@@ -18,7 +18,7 @@ namespace GameClient
         string password = string.Empty;
         bool firstText = false;
         private SpriteBatch spriteBatch;
-        public bool Done = false;
+        public bool Complete = false;
         public bool IsMouseVisible { get; private set; }
 
         public string Name
@@ -76,7 +76,7 @@ namespace GameClient
             input.KeysPressedInLastFrame.Clear();
             keyboard.Output = string.Empty;
             InputEngine.ClearState();
-            Done = false;
+            Complete = false;
         }
 
         protected override void LoadContent()
@@ -91,7 +91,7 @@ namespace GameClient
         {
             keyboard.Update(gameTime);
 
-            if (InputEngine.IsKeyPressed(Keys.Enter) && !firstText && !Done)
+            if (InputEngine.IsKeyPressed(Keys.Enter) && !firstText && !Complete)
             {
                 Name = Output; 
                 Output = string.Empty;
@@ -99,11 +99,11 @@ namespace GameClient
                 keyboard.Output = string.Empty;
                 InputEngine.ClearState();
             }
-            if (InputEngine.IsKeyPressed(Keys.Enter) && firstText && !Done)
+            if (InputEngine.IsKeyPressed(Keys.Enter) && firstText && !Complete)
             {
                 Output = string.Empty;
                 keyboard.Output = string.Empty;
-                Done = true;
+                Complete = true;
                 Enabled = false;
                 Visible = false;
             }
@@ -133,7 +133,7 @@ namespace GameClient
                 }
 
             keyboard.Draw();
-            if (Done) return;
+            if (Complete) return;
             spriteBatch.Begin();
             //spriteBatch.DrawString(sfont, keyboard.Output, new Vector2(10, GraphicsDevice.Viewport.Height - 30), Color.LawnGreen);
             if(!firstText)

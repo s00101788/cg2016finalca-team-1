@@ -87,7 +87,7 @@ namespace week12122016
             else
             {
                 Clients.Caller.Error(new ErrorMess
-                { message = "Incorrect GamerTag or Password Please try again " });
+                { message = "Incorrect GamerTag or Password Please try again. " });
             }
         }
         #endregion
@@ -145,9 +145,10 @@ namespace week12122016
         #endregion
 
         #region i think this for the chat but im not sure
-        public string SendGroupMessage(string textMessage)
+        public string send_Message(string textMessage)
         {
-            Clients.All.ShowGroupMessage(textMessage);
+            Clients.All.ShowMessage(textMessage);
+            
             return textMessage;
         }
         #endregion

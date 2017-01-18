@@ -42,19 +42,19 @@ namespace GameClient
 
         #region new code
         //this is for checking the log in i think
-        private List<PlayerData> allLogedInPlayers = new List<PlayerData>();
+        private List<PlayerData> Players_Logged_In = new List<PlayerData>();
         //importent i think this is how they are turning the log in on or off i dont think we need it htough 
-        private GetGameInputComponent loginKey;
+        private GetGameInputComponent login_Key;
 
         //for gamertag and password
         string gamerTag = string.Empty;
         string password = string.Empty;
 
         //for group message i think
-        private FadeText groupMessage;
+        private FadeText Chat_Message;
 
-        private bool loggedIn = false;
-        private bool loggedInFailed = false;
+        private bool Logged_In = false;
+        private bool Logged_In_Failed = false;
 
 
         //for other players
@@ -95,7 +95,7 @@ namespace GameClient
         public SpriteFont GameFont { get; private set; }
 
         public SpriteFont KeyboardFont;
-        private string validatePlayerMessage;
+        private string validation_PlayerMessage;
         private string chatMessage;
         private string playerValidationMessage;
 
@@ -110,8 +110,8 @@ namespace GameClient
         {
             // TODO: Add your initialization logic here
 
-            //connection = new HubConnection("http://localhost:5864/");
-            connection = new HubConnection("http://testingcg2016t2.azurewebsites.net");
+            //connection = new HubConnection("http://localhost:5864/"); //localhost connection
+            connection = new HubConnection("http://testingcg2016t2.azurewebsites.net"); //azure connection
             proxy = connection.CreateHubProxy("GameHub");
             message = "Connecting..";
             connection.StateChanged += Connection_StateChanged;
@@ -122,7 +122,7 @@ namespace GameClient
 
             IsMouseVisible = true;
             Helpers.GraphicsDevice = GraphicsDevice;
-            loginKey = new GetGameInputComponent(this);// used to create login keyboard
+            login_Key = new GetGameInputComponent(this);// used to create login keyboard
 
             base.Initialize();
         }
@@ -146,15 +146,7 @@ namespace GameClient
 
 
 
-        private static void recieved_a_message(string sender, string message) //Recieve incoming chat messages 
-        {
-            Console.WriteLine("{0} : {1}", sender, message);
-        }
-
-        private static void Connection_Received(string obj)
-        {
-            Console.WriteLine("Message Recieved {0}", obj);
-        }
+        
 
         private void subscribeToMessages()
         {
@@ -176,32 +168,59 @@ namespace GameClient
             #region new code
             //message for validate player
 
+            #region validate the player when logging in to match the hard coded tags
             Action<PlayerData> ValidatePlayer = valid_Player;
             proxy.On("PlayerValidated", ValidatePlayer);
+            #endregion
 
             //message for spawing in the player
 
-            // Action<Joined> AllPlayersStartingPositions = valid_Positions;
-            //  proxy.On("PlayersStartingPositions", AllPlayersStartingPositions);
+            #region starting poistions for players joining
+            Action<Joined> AllPlayersStartingPositions = valid_Positions;
+            proxy.On("PlayersStartingPositions", AllPlayersStartingPositions);
+            #endregion
 
             //message for moving new postions
+            #region validating the new player positions when they move on screen
             Action<MoveMessage> AllPlayersPositions = valid_NewPositions;
             proxy.On("PlayersStartingPositions", AllPlayersPositions);
+            #endregion
+
             //message for seni
+            #region message for group chat
             Action<string> SendGroupMessage = valid_GroupMessage;
             proxy.On("ShowGroupMessage", SendGroupMessage);
             #endregion
 
+            #endregion
             proxy.Invoke("join");
             // all other messages from Server go here
         }
 
         #region new code
+
+        #region player spawn in code
+        private void valid_Positions(Joined Other_Players)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        #endregion
+
+        #region new code
+
+        #region groupmessage
         //for gorup messaging
         private void valid_GroupMessage(string textMessage)
         {
-            groupMessage = new FadeText(this, Vector2.Zero, textMessage);
+            Chat_Message = new FadeText(this, Vector2.Zero, textMessage);
         }
+
+        #endregion
+
+
+        #region validate the new movement poistions 
         //for new postions
         private void valid_NewPositions(MoveMessage newPosition)
         {
@@ -240,6 +259,8 @@ namespace GameClient
         }
         #endregion
 
+
+        #region join message
         private void cJoined(int worldX, int roldY)
         {
             worldCoords = new Vector2(worldX, roldY);
@@ -252,6 +273,9 @@ namespace GameClient
             proxy.Invoke("getPlayer", new object());
 
         }
+        #endregion
+
+        #endregion
 
         protected override void LoadContent()
         {
@@ -352,35 +376,35 @@ namespace GameClient
             {
                 CheckLogedInPlayers();
 
-                if (InputEngine.IsKeyPressed(Keys.F10) && !loginKey.Visible)
+                if (InputEngine.IsKeyPressed(Keys.Enter) && !login_Key.Visible)
                 {
-                    loginKey.Visible = true;
-                    //Clears anything written before this point
+                    login_Key.Visible = true;
+                    
                     InputEngine.ClearState();
                 }
 
-                if (loginKey.Done)
+                if (login_Key.Complete)
                 {
-                    gamerTag = loginKey.Name;
-                    password = loginKey.Password;
-                    loginKey.Clear();
+                    gamerTag = login_Key.Name;
+                    password = login_Key.Password;
+                    login_Key.Clear();
                     InputEngine.ClearState();
 
-                    //checks to see if the connection is connected
+                    
                     if (connection.State == ConnectionState.Connected)
                         if (gamerTag != null && password != null)
                         {
                             getPlayer();
                             subscribeToMessages();
                             CheckLogedInPlayers();
-                            //getPlayerData();                
+                                          
                         }
 
                 }
 
-                if (loggedIn == true)
+                if (Logged_In == true)
                 {
-                    if (allLogedInPlayers.Count >= 2)
+                    if (Players_Logged_In.Count >= 2)
                         currentState = gamestates.game;
                 }
 
@@ -444,27 +468,26 @@ namespace GameClient
             #region new code
             if (currentState == gamestates.login)
             {
-                GraphicsDevice.Clear(Color.Black);
-                string helperMessage = "Press F10";
-                spriteBatch.DrawString(GameFont, helperMessage, new Vector2(500, 20), Color.White);
+                GraphicsDevice.Clear(Color.Gray);
+                string Message = "Press The Enter Key to continue.";
+                spriteBatch.DrawString(GameFont, Message, new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2), Color.LightSkyBlue);
 
-                if (loggedIn != false || loggedInFailed != false)
+                if (Logged_In != false || Logged_In_Failed != false)
                     if (playerData != null)
-                        spriteBatch.DrawString(GameFont, validatePlayerMessage, new Vector2(200, 50), Color.White);
-                //else
-                //spriteBatch.DrawString(GameFont, errorMessage, new Vector2(200, 50), Color.White);
+                        spriteBatch.DrawString(GameFont, validation_PlayerMessage, new Vector2(200, 50), Color.White);
+               
 
-                int count = 0;
+                
 
-                if (allLogedInPlayers != null)
+                if (Players_Logged_In != null)
                 {
 
-                    foreach (PlayerData player in allLogedInPlayers)
+                    foreach (PlayerData player in Players_Logged_In)
                     {
-                        string playerMessage = "Player " + player.GamerTag + " is Connected";
+                        string playerMessage = "Player:  " + player.GamerTag + " has connected to game";
 
                         if (player.GamerTag != playerData.GamerTag)
-                            spriteBatch.DrawString(GameFont, playerMessage, new Vector2(200, 60 + count), Color.White);
+                            spriteBatch.DrawString(GameFont, playerMessage, new Vector2(100, GraphicsDevice.Viewport.Height / 2), Color.Gray);
 
                         
                     }
@@ -526,14 +549,14 @@ namespace GameClient
         #region new code
         private void typeMessage()
         {
-            loginKey.Visible = true;
+            login_Key.Visible = true;
             //Clears anything written before this point
             InputEngine.ClearState();
 
-            if (loginKey.Done)
+            if (login_Key.Complete)
             {
-                chatMessage = loginKey.Name;
-                loginKey.Clear();
+                chatMessage = login_Key.Name;
+                login_Key.Clear();
                 InputEngine.ClearState();
 
                 //checks to see if the connection is connected
@@ -549,15 +572,15 @@ namespace GameClient
         #region new code
         private void sendAllClientMessage(string textMessage)
         {
-            proxy.Invoke("SendGroupMessage", new string[] { textMessage });
+            proxy.Invoke("send_Message", new string[] { textMessage });
         }
 
         private void valid_Player(PlayerData player)
         {
-            loggedIn = true;
+            Logged_In = true;
             playerData = player;
 
-            validatePlayerMessage = "PlayerValidated GamerTag is " + player.GamerTag;
+            validation_PlayerMessage = "Player has been validated gamerTag is " + player.GamerTag;
 
             getPlayerData();
         }
@@ -586,25 +609,23 @@ namespace GameClient
                 });
         }
 
+        
         #region new code
         private void CheckLogedInPlayers()
         {
-            Action<List<PlayerData>> AllLogedInPlayers = ShowPlayers;
-            proxy.On("PlayersValidated", AllLogedInPlayers);
+            Action<List<PlayerData>> All_Players_Logged_In = Show_Players;
+            proxy.On("PlayersValidated", All_Players_Logged_In);
         }
-         
+        //
         private void getPlayer()
         {
             proxy.Invoke("ValidatePlayer", new string[] { gamerTag, password });
         }
-
-        private void ShowPlayers(List<PlayerData> LogedInPlayers)
+        //
+        private void Show_Players(List<PlayerData> LogedInPlayers)
         {
-            loggedIn = true;
-
-            //if(LogedInPlayers.Contains(playerData))
-
-            allLogedInPlayers = LogedInPlayers;
+            Logged_In = true;
+            Players_Logged_In = LogedInPlayers;
         }
 #endregion
 
