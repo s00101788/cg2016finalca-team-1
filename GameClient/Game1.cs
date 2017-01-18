@@ -39,6 +39,25 @@ namespace GameClient
         PlayerData data;
         private string InGameMessage = string.Empty;
 
+
+        #region new code
+        //this is for checking the log in i think
+        private List<PlayerData> allLogedInPlayers = new List<PlayerData>();
+        //importent i think this is how they are turning the log in on or off i dont think we need it htough 
+        private GetGameInputComponent loginKey;
+
+        //for gamertag and password
+        string gamerTag = string.Empty;
+        string password = string.Empty;
+
+        //for group message i think
+        private FadeText groupMessage;
+
+        //for other players
+        private List<Player> OtherPlayers = new List<Player>();
+        #endregion
+
+
         Menu menu;
         string[] menuOptions = new string[] { "Fast", "Normal", "Strong" };
 
@@ -63,7 +82,7 @@ namespace GameClient
 
         static string name;
 
-        private GetGameInputComponent loginKey;
+        
 
         Texture2D collectable;
 
@@ -86,6 +105,7 @@ namespace GameClient
 
             //connection = new HubConnection("http://localhost:5864/");
             connection = new HubConnection("http://testingcg2016t2.azurewebsites.net");
+            proxy = connection.CreateHubProxy("GameHub");
             message = "Connecting..";
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
@@ -95,7 +115,7 @@ namespace GameClient
 
             IsMouseVisible = true;
             Helpers.GraphicsDevice = GraphicsDevice;
-            new GetGameInputComponent(this);// used to create login keyboard
+            loginKey = new GetGameInputComponent(this);// used to create login keyboard
 
             base.Initialize();
         }
@@ -112,24 +132,7 @@ namespace GameClient
                     getCollectableData();
                     break;
 
-                //case ConnectionState.Disconnected:
-                //    message = "Disconnected.....";
-                //    if (state.OldState == ConnectionState.Connected)
-                //        message = "Lost Connection....";
-                //    Connected = false;
-                //    break;
-
-                //case ConnectionState.Connecting:
-                //    message = "Connecting.....";
-                //    Connected = false;
-                //    break;
-
-
-                //    break;
-                //default:
-                //    Console.WriteLine("{0}", state.NewState);
-                //    break;
-
+                
             }
         }
 
@@ -177,9 +180,48 @@ namespace GameClient
             Action<double> recieveGameCountdown = clientRecieveGameCount; //coundown for game method
             proxy.On("recieveGameCount", recieveGameCountdown);//ms recive game countdown message 
 
+            #region new code
+            //message for validate player
+
+            //  Action<PlayerData> ValidatePlayer = valid_Player;
+            //  proxy.On("PlayerValidated", ValidatePlayer);
+
+            //message for spawing in the player
+
+            // Action<Joined> AllPlayersStartingPositions = valid_Positions;
+            //  proxy.On("PlayersStartingPositions", AllPlayersStartingPositions);
+
+            //message for moving new postions
+            Action<MoveMessage> AllPlayersPositions = valid_NewPositions;
+            proxy.On("PlayersStartingPositions", AllPlayersPositions);
+            //message for seni
+            Action<string> SendGroupMessage = valid_GroupMessage;
+            proxy.On("ShowGroupMessage", SendGroupMessage);
+            #endregion
+
             proxy.Invoke("join");
             // all other messages from Server go here
         }
+
+        #region new code
+        //for gorup messaging
+        private void valid_GroupMessage(string textMessage)
+        {
+            groupMessage = new FadeText(this, Vector2.Zero, textMessage);
+        }
+        //for new postions
+        private void valid_NewPositions(MoveMessage newPosition)
+        {
+            foreach (Player op in OtherPlayers)
+            {
+                if (op.id.ToString() == newPosition.playerID)
+                    op.position = new Vector2(newPosition.NewX, newPosition.NewY);
+            }
+        }
+        #endregion
+
+   
+
         #region Action delegates for incoming server messages
         private void clientRecieveGameCount(double count)
         {

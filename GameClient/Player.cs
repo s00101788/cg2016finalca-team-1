@@ -14,6 +14,7 @@ namespace GameClient
 {
     public class Player : AnimatedSprite
     {
+        public int id;
         public PlayerData PlayerInfo { get; set; }
         public enum DIRECTION { LEFT, RIGHT, UP, DOWN, STANDING };
         DIRECTION _direction = DIRECTION.STANDING;
