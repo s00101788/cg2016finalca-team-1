@@ -12,7 +12,8 @@ namespace week12122016
     public static class GameSate {
         public static List<PlayerData> players = new List<PlayerData>()
         {
-           new PlayerData {
+         #region hard coded player log in data
+            new PlayerData {
                 PlayerID=1,
                 FirstName ="Michelle",
                 SecondName ="Hughes",
@@ -36,7 +37,7 @@ namespace week12122016
                 SecondName ="Kevin",
                 Tag ="KevC76", XP=6000 },
         };
-
+        #endregion
 
         private static readonly Random random = new Random();
         private static readonly object syncLock = new object();
@@ -60,12 +61,15 @@ namespace week12122016
         {
             Clients.All.hello();
         }
+
+        #region varibles 
         public static TimeSpan countDown = new TimeSpan(0, 0, 0, 30); //ms countdown for the start fo the game
         public static Timer TimeToStart = new Timer(1000); //ms the timer for counting down in seconds
         public static TimeSpan GameCountdown = new TimeSpan(0, 5, 0); //ms how long the game lasts 5 mins here
         public static Timer GameTimer = new Timer(1000);
         public static int WorldX = 2000;
         public static int WorldY = 2000;
+        #endregion
 
         public void join()
         {
@@ -94,14 +98,14 @@ namespace week12122016
         }
         #endregion
 
-        #region starting when two people are logged in
+        #region for logged in players
         public void LoggedInPlayers(string gamerTag, string password)
         {
             Clients.All.PlayersValidated(GameSate.PlayersLogged);
         }
         #endregion
 
-        #region this is for spawning in players i think
+        #region spawning players in random pos
         public Joined PlayerStart_Pos(float x, float y, string playerID, string ImageName)
         {
             PlayerData found = GameSate.players.FirstOrDefault(p => p.PlayerID.ToString() == playerID);
@@ -146,7 +150,7 @@ namespace week12122016
         }
         #endregion
 
-        #region i think this for the chat but im not sure
+        #region for chat
         public string send_Message(string textMessage)
         {
             Clients.All.Show_Message(textMessage);
@@ -181,6 +185,7 @@ namespace week12122016
         }
         #endregion
 
+        #region collectables
 
         public List<CollectableData> GetCollectables(int count, int WorldX, int WorldY)
         {
@@ -200,6 +205,9 @@ namespace week12122016
             }
             return collectables;
         }
+        #endregion
+
+        #region game timer
         private void GameTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             if (GameCountdown.TotalMinutes > 0)
@@ -215,6 +223,7 @@ namespace week12122016
 
             }
         }
+        #endregion
 
         public void Send(string name, string message)
         {
@@ -227,7 +236,7 @@ namespace week12122016
 
         }
 
-
+        #region time to start
         private void TimeToStart_Elapased(object sender, ElapsedEventArgs e)
         {
             if (countDown.TotalSeconds > 0)
@@ -243,6 +252,7 @@ namespace week12122016
 
             }
         }
+        #endregion
     }
 
 }
