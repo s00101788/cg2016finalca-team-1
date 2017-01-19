@@ -112,8 +112,8 @@ namespace GameClient
 
         public  void Draw()
         {
-            //batch.Begin();
-            
+            batch.Begin();
+
             foreach (var key in keys)
             {
                 if (!key.IsMouseOver)
@@ -123,8 +123,8 @@ namespace GameClient
 
                 batch.DrawString(font, key.Text, key.Position, Color.White);
             }
-            
-            //batch.End();
+
+            batch.End();
 
         }
     }

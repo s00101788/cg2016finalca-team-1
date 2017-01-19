@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameClient
+namespace GameClassLibrary
 {
     public class MenuItem
     {
@@ -96,7 +96,7 @@ namespace GameClient
             if (_selected)
                 sp.Draw(_texture, _position, Color.Red);
             else
-                sp.Draw(_texture, _position, Color.Green);
+                sp.Draw(_texture, _position, Color.White);
 
             sp.DrawString(font, _text, textPos, Color.Red);
         }

@@ -6,8 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using TextEffects;
-using Sprites;
-using Cameras;
+using GameClassLibrary;
 using Microsoft.Xna.Framework.Audio;
 using System.Linq;
 
@@ -26,18 +25,58 @@ namespace GameClient
         private bool connected;
         private bool joined;
 
-        SpriteFont ScoreFont;
-        public enum gamestates { login, game, scoreboard };
-        gamestates currentState = gamestates.login;
-        private PlayerData playerData;
-        public Player player;
-        Vector2 worldCoords;
-        private Rectangle worldRect;
-        private FollowCamera followCamera;
-        SpriteFont scoreBoardfontF, timerF, scorePointsF;
-        int playerScore;
-        PlayerData data;
-        private string InGameMessage = string.Empty;
+        #region Declarations
+
+        static Random r = new Random();
+        bool gameStarted = true;
+
+        string clientID;
+        Color playerColor = Color.White;
+        Color enemyColor = Color.Red;
+
+        enum currentDisplay { Selection, Game, Score };
+        currentDisplay currentState = currentDisplay.Selection;
+
+        enum endGameStatuses { Win, Lose, Draw }
+        endGameStatuses gameOutcome = endGameStatuses.Draw;
+
+        Player player;
+        Player Enemy;
+        private Character playerData;
+
+
+        Menu menu;
+        string[] menuOptions = new string[] { "Fast", "Normal", "Strong" };
+
+        Vector2 startVector = new Vector2(50, 250);
+
+        Bullet newBullet;
+
+        Texture2D backgroundTexture;
+        Texture2D[] textures;
+        Texture2D textureCollectable;
+        Texture2D textureSuperCollectable;
+        Texture2D[] textureBarrier;
+        Texture2D texHealth;
+        string message;
+
+        KeyboardState oldState, newState;
+
+        public List<Bullet> Bullets = new List<Bullet>();
+        List<Collectable> Collectables = new List<Collectable>();
+        List<Barrier> Barriers = new List<Barrier>();
+        List<Collectable> pickUp = new List<Collectable>();
+        List<Barrier> destroyBarrier = new List<Barrier>();
+        List<Bullet> destroyBullets = new List<Bullet>();
+
+
+
+
+        //static IHubProxy proxy;
+        //HubConnection connection = new HubConnection("http://localhost:5553/");
+
+        #endregion
+
 
 
         #region new code
@@ -63,23 +102,10 @@ namespace GameClient
 
 
 
-        Menu menu;
-        string[] menuOptions = new string[] { "Fast", "Normal", "Strong" };
-
-        Texture2D backGround;
-        SoundEffect[] sounds;
-
-        KeyboardState oldState, newState;
 
 
-        //Used with the player sprite
-        Vector2 origin;
-        Vector2 scale;
-        Vector2 center;
-        Vector2 mousePos;
-        Vector2 direction;
 
-        private string message;
+
         private string errorMessage;
 
         private string timerMessage = "Time to start:  ";
@@ -89,7 +115,7 @@ namespace GameClient
 
         
 
-        Texture2D collectable;
+        
 
         private bool Connected;
         public SpriteFont GameFont { get; private set; }
@@ -102,15 +128,15 @@ namespace GameClient
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferHeight = 600;
             Content.RootDirectory = "Content";
         }
 
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            oldState = Keyboard.GetState();
 
             //connection = new HubConnection("http://localhost:5864/"); //localhost connection
             connection = new HubConnection("http://testingcg2016t2.azurewebsites.net"); //azure connection
@@ -172,7 +198,7 @@ namespace GameClient
 
             #region validate the player when logging in to match the hard coded tags
 
-            Action<PlayerData> Validation_Player = validatePlayer;
+            Action<Character> Validation_Player = validatePlayer;
             proxy.On("PlayerIsValid", Validation_Player);
 
             #endregion
@@ -238,8 +264,8 @@ namespace GameClient
         {
             foreach (Player op in OtherPlayers)
             {
-                if (op.id.ToString() == newPos.playerID)
-                    op.position = new Vector2(newPos.NewX, newPos.NewY);
+                if (op.PlayerChar.ToString() == newPos.playerID)
+                    op._position = new Vector2(newPos.NewX, newPos.NewY);
             }
         }
         #endregion
@@ -261,7 +287,7 @@ namespace GameClient
         {
             if (player != null)
             {
-                player.PlayerInfo = playerData;
+                player.PlayerChar = playerData;
             }
         }
 
@@ -275,10 +301,7 @@ namespace GameClient
         #region join message
         private void cJoined(int worldX, int roldY)
         {
-            worldCoords = new Vector2(worldX, roldY);
-            // Setup Camera
-            worldRect = new Rectangle(new Point(0, 0), worldCoords.ToPoint());
-            followCamera = new FollowCamera(this, Vector2.Zero, worldCoords);
+            
             joined = true;
             // Setup Player
             //SetupPlayer();
@@ -293,81 +316,174 @@ namespace GameClient
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            GameFont = Content.Load<SpriteFont>("GameFont");
-            collectable = Content.Load<Texture2D>("collectable"); //ms collectable texture
-            Services.AddService<SpriteFont>(GameFont);
-            Services.AddService<SpriteBatch>(spriteBatch);
 
+            LoadGameContent();
 
-            LoadAssets();//Loads all content in the game content folder
+            #region Loading Textures
 
+            backgroundTexture = LoadedGameContent.Textures["background"]; //load all textures
+            textures = new Texture2D[] { LoadedGameContent.Textures["circle"], LoadedGameContent.Textures["square"], LoadedGameContent.Textures["triangle"] };
+            textureBarrier = new Texture2D[] { LoadedGameContent.Textures["barrier"], LoadedGameContent.Textures["barrier_broken"] };
+            textureCollectable = LoadedGameContent.Textures["Collectable"];
+            textureSuperCollectable = LoadedGameContent.Textures["SuperCollectable"];
+            texHealth = LoadedGameContent.Textures["healthBar"];
 
-            ScoreFont = LoadedGameContent.Fonts["GameFont"];
+            #endregion
 
-            KeyboardFont = Content.Load<SpriteFont>("keyboardfont");
+            #region Settings
+            textureBarrier = new Texture2D[] { LoadedGameContent.Textures["barrier"], LoadedGameContent.Textures["barrier_broken"] };
 
-            backGround = Content.Load<Texture2D>("Space");
+            for (int i = 0; i < 4; i++) //create barriers 
+            {
+                Barriers.Add(new Barrier(clientID, textureBarrier, new Vector2(r.Next(50, graphics.GraphicsDevice.Viewport.Width - 50), r.Next(50, graphics.GraphicsDevice.Viewport.Height - 50)), playerColor));
+            }
+            GameFont = LoadedGameContent.Fonts["message"];
+            menu = new Menu(new Vector2(300, 250), menuOptions, GameFont, textures); //create the menu
+
+            menu.Active = true; //set menu active
+
+            #endregion
             //backGround = LoadedGameContent.Textures
 
 
 
-            menu = new Menu(new Vector2(300, 250), menuOptions, KeyboardFont, GetMenuTextureArray()); //create the menu
-
-            menu.Active = true; //set menu active
 
 
-            //sounds[0] = Content.Load<SoundEffect>("sounds/footsteps");
 
-            //player = new Player(new Texture2D(""), new SoundEffect(1, 1,), Vector2.Zero, 3, 0, 1f);
-            //sounds = Content.Load<SoundEffect>("footsteps-2");
+           
 
-
-            player = new Player(this, "oldman", new Vector2(500, 500), 1, 8, 1);
 
             new FadeTextManager(this);
 
-            // TODO: use this.Content to load your game content here
         }
 
-        private Texture2D[] GetMenuTextureArray()
+
+        #region Methods
+
+        private List<PlayerData> GetScores(int count)
         {
-            string[] _tex;
-
-            _tex = new string[3];
-            _tex[0] = "key";
-            _tex[1] = "collectable";
-            _tex[2] = "dragon";
-
-            Texture2D[] Tex;
-            Tex = new Texture2D[_tex.Length];
-
-            for (int i = 0; i < _tex.Length; i++)
+            using (TestDbContext db = new TestDbContext())
             {
-                Tex[i] = LoadedGameContent.Textures[_tex[i]];
+                return db.ScoreBoard.Take(count).ToList();
             }
-
-            return Tex;
         }
 
-        private void LoadAssets()
+
+        private void CreateGameCollecables(List<CollectableData> result)
         {
-            //LoadedGameContent.Sounds.Add("backing", Content.Load<SoundEffect>("Backing Track wav"));
-            //LoadedGameContent.Sounds.Add("cannon fire", Game.Content.Load<SoundEffect>("cannon fire"));
-            //LoadedGameContent.Sounds.Add("Impact", Game.Content.Load<SoundEffect>("Impact"));
+
+            //foreach (CollectableData c in result)
+            //{
+            //    new FadeText(this, Vector2.Zero,
+            //        "Delivered " + c.CollectableName +
+            //            " X: " + c.X.ToString() + " Y: " + c.X.ToString());
+
+            //    spriteBatch.Draw(Collectables);
+
+            //}
+        }
+
+
+        private void getCollectableData()
+        {
+            int WorldX = GraphicsDevice.Viewport.Width;
+            int WorldY = GraphicsDevice.Viewport.Height;
+            int count = 10;
+            proxy.Invoke<List<CollectableData>>("GetCollectables",
+                                new object[] { count, WorldX, WorldY })
+                .ContinueWith(t =>
+                {
+                    CreateGameCollecables(t.Result);
+                });
+        }
+
+
+        private void getPlayerData()
+        {
+            proxy.Invoke<Character>("getPlayer",
+                                new string[] { "" })
+                .ContinueWith(t =>
+                {
+                    playerData = t.Result;
+                });
+        }
+
+        public bool OutsideScreen(Sprite obj)
+        {
+            if (!obj.Rectangle.Intersects(Window.ClientBounds))
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+
+        private void LoadGameContent()
+        {
+            //Load Game Sounds
+            //LoadedGameContent.Sounds.Add("", Content.Load<SoundEffect>(""));
+
+
+            //load game Textures
+            LoadedGameContent.Textures.Add("triangle", Content.Load<Texture2D>("textures/triangle"));
+            LoadedGameContent.Textures.Add("circle", Content.Load<Texture2D>("textures/circle"));
+            LoadedGameContent.Textures.Add("square", Content.Load<Texture2D>("textures/square"));
+            LoadedGameContent.Textures.Add("barrier", Content.Load<Texture2D>("textures/barrier"));
+            LoadedGameContent.Textures.Add("barrier_broken", Content.Load<Texture2D>("textures/barrier_broken"));
+            LoadedGameContent.Textures.Add("Collectable", Content.Load<Texture2D>("textures/triangle"));
+            LoadedGameContent.Textures.Add("SuperCollectable", Content.Load<Texture2D>("textures/triangle"));
+            LoadedGameContent.Textures.Add("healthBar", Content.Load<Texture2D>("textures/triangle"));
+            LoadedGameContent.Textures.Add("background", Content.Load<Texture2D>("textures/background"));
             LoadedGameContent.Textures.Add("dragon", Content.Load<Texture2D>("dragon"));
             LoadedGameContent.Textures.Add("oldman", Content.Load<Texture2D>("oldman"));
             LoadedGameContent.Textures.Add("key", Content.Load<Texture2D>("key"));
-            LoadedGameContent.Textures.Add("collectable", Content.Load<Texture2D>("collectable"));
-            //LoadedGameContent.Textures.Add("background", Game.Content.Load<Texture2D>("background"));
-            //LoadedGameContent.Textures.Add("Player", Game.Content.Load<Texture2D>("Player"));
+
+
+
+            //Load game fonts
+            LoadedGameContent.Fonts.Add("message", Content.Load<SpriteFont>("fonts/message"));
+            LoadedGameContent.Fonts.Add("scoreFont", Content.Load<SpriteFont>("fonts/scoreFont"));
             LoadedGameContent.Fonts.Add("GameFont", Content.Load<SpriteFont>("GameFont"));
 
+
+            //Set music to play if you have music
             //_audioPlayer = LoadedGameContent.Sounds["backing"].CreateInstance();
             //_audioPlayer.Volume = 0.2f;
             //_audioPlayer.IsLooped = true;
             //_audioPlayer.Play();
-
         }
+
+        private Player createPlayer(string id, string type, Color c)
+        {
+            Player temp = null;
+            if (type != null)
+            {
+
+                switch (type.ToUpper()) //check for type and create the character
+                {
+                    case "FAST":
+                        currentState = currentDisplay.Game;
+                        temp = new Player(new Character(id, textures[0], 7, 3), texHealth, startVector, c, this);
+                        break;
+                    case "NORMAL":
+                        currentState = currentDisplay.Game;
+                        temp = new Player(new Character(id, textures[1], 5, 4), texHealth, startVector, c, this);
+                        break;
+                    case "STRONG":
+                        currentState = currentDisplay.Game;
+                        temp = new Player(new Character(id, textures[2], 3, 5), texHealth, startVector, c, this);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+
+            return temp;
+        }
+        #endregion
+
+        
 
         protected override void UnloadContent()
         {
@@ -384,7 +500,7 @@ namespace GameClient
 
 
             #region new code
-            if (currentState == gamestates.login)
+            if (currentState == currentDisplay.Selection)
             {
                 CheckLogedInPlayers();
 
@@ -419,146 +535,335 @@ namespace GameClient
                 if (Logged_In == true)
                 {
                     if (Players_Logged_In.Count >= 2)
-                        currentState = gamestates.game;
+                        currentState = currentDisplay.Game;
                 }
 
             }
             #endregion
 
-            else if (currentState == gamestates.game)
-            {
-                if (player != null)
-                {
-                    player.Update(gameTime);
-                    //player.position = Vector2.Clamp(player.position, Vector2.Zero,
-                    //    GraphicsDevice.Viewport.Bounds.Size.ToVector2() -
-                    //    new Vector2(player._skin.Width / 2,
-                    //    player._skin.Height / 2));
-
-                    if (followCamera != null)
-                    {
-                        followCamera.Follow(player);
-
-                    }
-
-                }
-            }
-            else if (currentState == gamestates.scoreboard)
-            {
-
-            }
 
 
 
             //player.Update(gameTime);
 
 
+
+            #region Select Character
+
+            if (currentState == currentDisplay.Selection)
+            {
+                menu.CheckMouse();
+
+                player = createPlayer(clientID, menu.MenuAction, playerColor);
+                Enemy = new Player(new Character("Emily", textures[0], 7, 3), LoadedGameContent.Textures["square"], new Vector2(10, 10), playerColor, this);
+                //if (player != null)
+                //{
+                //    proxy.Invoke("SendPlayer", menu.MenuAction);
+
+                //    sendBarriers(Barriers);
+                //}
+
+                menu.MenuAction = null; //reset the selection
+            }
+
+            #endregion
+            #region GameLogic 
+
+            if (currentState == currentDisplay.Game) //if the game is running
+            {
+                if (gameStarted)
+                {
+                    player.Move(newState); //check for the player movement
+                    //proxy.Invoke("UpdatePosition", player._position);
+
+                    #region Collision
+                    foreach (var item in Bullets) //check if bullet hit a barrier and destroy it
+                    {
+                        foreach (var bar in Barriers)
+                        {
+                            if (item.CollisiionDetection(bar.Rectangle))
+                            {
+                                if (item.createdPlayerID != bar.createdClientID)
+                                {
+                                    bar.GotHit(item);
+                                    item.IsVisible = false;
+                                    destroyBullets.Add(item);
+                                    if (!bar.IsVisible)
+                                        destroyBarrier.Add(bar);
+
+                                }
+                            }
+                        }
+                        if (item.CollisiionDetection(Enemy.Rectangle))
+                            Enemy.PlayerChar.GotShoot(item);
+
+                        if (item.CollisiionDetection(player.Rectangle))
+                            player.PlayerChar.GotShoot(item);
+                    }
+
+                    foreach (var item in Collectables)
+                    {
+                        if (player.CollisiionDetection(item.Rectangle))
+                        {
+                            pickUp.Add(item);
+                            item.IsVisible = false;
+                            player.Collect(item);
+                        }
+
+                        if (Enemy.CollisiionDetection(item.Rectangle))
+                        {
+                            pickUp.Add(item);
+                            item.IsVisible = false;
+                            Enemy.Collect(item);
+                        }
+                    }
+
+                    #endregion
+
+                    #region fireing player controls
+                    if (newState.IsKeyDown(Keys.Right) && oldState != newState && gameStarted)
+                    {
+                        newBullet = player.PlayerChar.Shoot(player._position, new Vector2(1, 0), playerColor); //create a bullet
+                        if (newBullet != null)
+                        {
+                            Bullets.Add(newBullet); //add the new bullet to the list
+                            //proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
+                        }
+
+                    }
+                    if (newState.IsKeyDown(Keys.Left) && oldState != newState && gameStarted)
+                    {
+                        newBullet = player.PlayerChar.Shoot(player._position, new Vector2(-1, 0), playerColor); //create a bullet
+                        if (newBullet != null)
+                        {
+                            Bullets.Add(newBullet); //add the new bullet to the list
+                            //proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
+                        }
+
+                    }
+                    if (newState.IsKeyDown(Keys.Up) && oldState != newState && gameStarted)
+                    {
+                        newBullet = player.PlayerChar.Shoot(player._position, new Vector2(0, -1), playerColor); //create a bullet
+                        if (newBullet != null)
+                        {
+                            Bullets.Add(newBullet); //add the new bullet to the list
+                            //proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
+                        }
+
+                    }
+                    if (newState.IsKeyDown(Keys.Down) && oldState != newState && gameStarted)
+                    {
+                        newBullet = player.PlayerChar.Shoot(player._position, new Vector2(0, 1), playerColor); //create a bullet
+                        if (newBullet != null)
+                        {
+                            Bullets.Add(newBullet); //add the new bullet to the list
+                            //proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
+                        }
+
+                    }
+                    //Bullets.Add(new Bullet(player.PlayerChar._texture, player.PlayerChar.strength, player.Position, player.FireDirection));
+
+                    #endregion
+
+
+                    foreach (var item in Bullets)
+                    {
+                        item.Update(); //update the Bullets
+                        if (OutsideScreen(item))
+                        {
+                            destroyBullets.Add(item);
+                        }
+                    }
+
+                    foreach (var item in destroyBarrier)
+                    {
+                        Barriers.Remove(item);
+                    }
+                    foreach (var item in pickUp)
+                    {
+                        Collectables.Remove(item);
+                    }
+                    foreach (var item in destroyBullets)
+                    {
+                        Bullets.Remove(item);
+                    }
+
+                    destroyBarrier.Clear();
+                    pickUp.Clear();
+                    destroyBullets.Clear();
+
+                    if (Collectables.Count == 1)
+                        currentState = currentDisplay.Score;
+                    if (Enemy.PlayerChar.Health <= 0)
+                        currentState = currentDisplay.Score;
+                    if (player.PlayerChar.Health <= 0)
+                        currentState = currentDisplay.Score;
+
+                    if (currentState == currentDisplay.Score)
+                    {
+                        gameStarted = false;
+                        //proxy.Invoke("StartGame", gameStarted);
+                        if (player.score > Enemy.score)
+                            gameOutcome = endGameStatuses.Win;
+                        if (player.score < Enemy.score)
+                            gameOutcome = endGameStatuses.Lose;
+                        if (player.score == Enemy.score)
+                            gameOutcome = endGameStatuses.Draw;
+                    }
+
+                }
+                currentState = currentDisplay.Game;
+            }
+
+            #endregion
+
+
+            if (newState.IsKeyDown(Keys.Escape) && oldState != newState) // go back to the character selection
+                Exit();
+
             base.Update(gameTime);
+
+            oldState = newState;
         }
 
 
 
         protected override void Draw(GameTime gameTime)
         {
-            
-            spriteBatch.Begin();
+            { 
+            #region dump
+            //spriteBatch.Begin();
 
-            if (currentState == gamestates.scoreboard)
-            {
-
-
-
-                GraphicsDevice.Clear(Color.CornflowerBlue);
-                Vector2 v = ScoreFont.MeasureString("string this");
-                Vector2 Base = new Vector2(GraphicsDevice.Viewport.Width / 2, 100);
-                Base += Base + new Vector2(0, ScoreFont.MeasureString(data.GamerTagScore).Y + 10);
-
-                foreach (var x in GetScores(5))
-                {
-                    spriteBatch.DrawString(ScoreFont, x.GamerTagScore, new Vector2(graphics.PreferredBackBufferHeight / 2, graphics.PreferredBackBufferWidth / 2), Color.White);
-                }
-            }
-
-            #region new code
-            if (currentState == gamestates.login)
-            {
-                GraphicsDevice.Clear(Color.Gray);
-                string Message = "Press The Enter Key to continue.";
-                spriteBatch.DrawString(GameFont, Message, new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2), Color.LightSkyBlue);
-
-                if (Logged_In != false || Logged_In_Failed != false)
-                    if (playerData != null)
-                        spriteBatch.DrawString(GameFont, validation_PlayerMessage, new Vector2(200, 50), Color.White);
-               
+            //if (currentState == currentDisplay.)
+            //{
 
                 
 
-                if (Players_Logged_In != null)
+                //    GraphicsDevice.Clear(Color.CornflowerBlue);
+                //    Vector2 v = ScoreFont.MeasureString("string this");
+                //    Vector2 Base = new Vector2(GraphicsDevice.Viewport.Width / 2, 100);
+                //    Base += Base + new Vector2(0, ScoreFont.MeasureString(data.GamerTagScore).Y + 10);
+
+                //    foreach (var x in GetScores(5))
+                //    {
+                //        spriteBatch.DrawString(ScoreFont, x.GamerTagScore, new Vector2(graphics.PreferredBackBufferHeight / 2, graphics.PreferredBackBufferWidth / 2), Color.White);
+                //    }
+                //}
+
+                //#region new code
+                //if (currentState == gamestates.login)
+                //{
+                //    GraphicsDevice.Clear(Color.Gray);
+                //    string Message = "Press The Enter Key to continue.";
+                //    spriteBatch.DrawString(GameFont, Message, new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2), Color.LightSkyBlue);
+
+                //    if (Logged_In != false || Logged_In_Failed != false)
+                //        if (playerData != null)
+                //            spriteBatch.DrawString(GameFont, validation_PlayerMessage, new Vector2(200, 50), Color.White);
+
+
+
+
+                //    if (Players_Logged_In != null)
+                //    {
+
+                //        foreach (PlayerData player in Players_Logged_In)
+                //        {
+                //            string playerMessage = "Player:  " + player.GamerTag + " has connected to game";
+
+                //            if (player.GamerTag != playerData.GamerTag)
+                //                spriteBatch.DrawString(GameFont, playerMessage, new Vector2(100, GraphicsDevice.Viewport.Height / 2), Color.Gray);
+
+
+                //        }
+                //    }
+
+                //    //if (allLogedInPlayers.Count >= 2) ;
+                //    //    //btnSubmit.Draw(spriteBatch);
+                //}
+
+                //if (currentState == gamestates.game)
+                //{
+
+
+                //    GraphicsDevice.Clear(Color.CornflowerBlue);
+
+                //    spriteBatch.DrawString(GameFont,
+                //        message,
+                //        new Vector2(200, 20), Color.White
+                //        );
+                //    if (playerData != null)
+                //    {
+                //        spriteBatch.DrawString(GameFont,
+                //            playerData.FirstName + " is ok ",
+                //            new Vector2(20, 20), Color.White
+                //            );
+                //        spriteBatch.Draw(backGround, worldRect, Color.White);
+
+
+                //        spriteBatch.DrawString(KeyboardFont, InGameMessage, new Vector2(10, 10), Color.White);
+
+
+                //        spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red); //ms drawing the game timer message
+
+                //        spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White); //ms drawing the game countdown message
+
+                //    player.Draw(spriteBatch);
+
+                //    }
+                //    #endregion
+
+                //    spriteBatch.End();
+                //    // TODO: Add your drawing code here
+
+
+
+                //    base.Draw(gameTime);
+                #endregion
+                GraphicsDevice.Clear(Color.CornflowerBlue);
+
+                if (currentState == currentDisplay.Selection)
+                    menu.Draw(spriteBatch); //draw the menu
+                #region Draw the Game
+                if (currentState == currentDisplay.Game) //if game is started
                 {
+                    spriteBatch.Begin();
+                    spriteBatch.Draw(backgroundTexture, new Rectangle(0, 0, 800, 600), null, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0f); //draw the background
+                    if (Enemy != null)
+                        spriteBatch.DrawString(GameFont, "Score: " + Enemy.score.ToString(), new Vector2(700, 0), enemyColor);
+                    spriteBatch.DrawString(GameFont, "Score: " + player.score.ToString(), new Vector2(0, 0), playerColor);
+                    spriteBatch.End();
 
-                    foreach (PlayerData player in Players_Logged_In)
+                    if (Enemy != null)
+                        Enemy.Draw(spriteBatch);
+
+                    player.Draw(spriteBatch, GameFont); //draw the player
+
+                    foreach (var item in Collectables)
                     {
-                        string playerMessage = "Player:  " + player.GamerTag + " has connected to game";
+                        item.Draw(spriteBatch); // draw the Collectabels at layer 0
+                    }
 
-                        if (player.GamerTag != playerData.GamerTag)
-                            spriteBatch.DrawString(GameFont, playerMessage, new Vector2(100, GraphicsDevice.Viewport.Height / 2), Color.Gray);
+                    foreach (var item in Bullets)
+                    {
+                        item.Draw(spriteBatch); // draw the Bullets
+                    }
 
-                        
+                    foreach (var item in Barriers)
+                    {
+                        item.Draw(spriteBatch); //draw the Barriers at layer 1
                     }
                 }
 
-                //if (allLogedInPlayers.Count >= 2) ;
-                //    //btnSubmit.Draw(spriteBatch);
-            }
-
-            if (currentState == gamestates.game)
-            {
-
-
-                GraphicsDevice.Clear(Color.CornflowerBlue);
-
-                spriteBatch.DrawString(GameFont,
-                    message,
-                    new Vector2(200, 20), Color.White
-                    );
-                if (playerData != null)
-                {
-                    spriteBatch.DrawString(GameFont,
-                        playerData.FirstName + " is ok ",
-                        new Vector2(20, 20), Color.White
-                        );
-                    spriteBatch.Draw(backGround, worldRect, Color.White);
-
-                    
-                    spriteBatch.DrawString(KeyboardFont, InGameMessage, new Vector2(10, 10), Color.White);
-
-
-                    spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red); //ms drawing the game timer message
-                   
-                    spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White); //ms drawing the game countdown message
-                   
-                player.Draw(spriteBatch);
-
-                }
                 #endregion
-
-                spriteBatch.End();
-                // TODO: Add your drawing code here
-
 
 
                 base.Draw(gameTime);
 
+
             }
         }
 
-        private List<PlayerData> GetScores(int count)
-        {
-            using (TestDbContext db = new TestDbContext())
-            {
-                return db.ScoreBoard.Take(count).ToList();
-            }
-        }
 
         #region new code
         private void typeMessage()
@@ -589,39 +894,19 @@ namespace GameClient
             proxy.Invoke("send_Message", new string[] { textMessage });
         }
 
-        private void validatePlayer(PlayerData player)
+        private void validatePlayer(Character player)
         {
             Logged_In = true;
             playerData = player;
 
-            validation_PlayerMessage = "Player has been validated Gamertag is: " + player.GamerTag;
+            validation_PlayerMessage = "Player has been validated Gamertag is: " + player._texture.ToString();
 
             getPlayerData();
         }
         #endregion
 
-        private void getPlayerData()
-        {
-            proxy.Invoke<PlayerData>("getPlayer",
-                                new string[] { "" })
-                .ContinueWith(t =>
-                {
-                    playerData = t.Result;
-                });
-        }
+       
 
-        private void getCollectableData()
-        {
-            int WorldX = GraphicsDevice.Viewport.Width;
-            int WorldY = GraphicsDevice.Viewport.Height;
-            int count = 10;
-            proxy.Invoke<List<CollectableData>>("GetCollectables",
-                                new object[] { count, WorldX, WorldY })
-                .ContinueWith(t =>
-                {
-                    CreateGameCollecables(t.Result);
-                });
-        }
 
         
         #region new code
@@ -643,18 +928,5 @@ namespace GameClient
         }
 #endregion
 
-        private void CreateGameCollecables(List<CollectableData> result)
-        {
-
-            foreach (CollectableData c in result)
-            {
-                new FadeText(this, Vector2.Zero,
-                    "Delivered " + c.CollectableName +
-                        " X: " + c.X.ToString() + " Y: " + c.X.ToString());
-               
-                spriteBatch.Draw(collectable);
-            
-            }
-        }
     }
 }
