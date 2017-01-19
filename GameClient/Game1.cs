@@ -102,6 +102,8 @@ namespace GameClient
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 720;
             Content.RootDirectory = "Content";
         }
 
@@ -169,27 +171,35 @@ namespace GameClient
             //message for validate player
 
             #region validate the player when logging in to match the hard coded tags
-            Action<PlayerData> ValidatePlayer = valid_Player;
-            proxy.On("PlayerValidated", ValidatePlayer);
+
+            Action<PlayerData> Validation_Player = validatePlayer;
+            proxy.On("PlayerIsValid", Validation_Player);
+
             #endregion
 
             //message for spawing in the player
 
-            #region starting poistions for players joining
-            Action<Joined> AllPlayersStartingPositions = valid_Positions;
-            proxy.On("PlayersStartingPositions", AllPlayersStartingPositions);
+            #region starting for players joining
+
+            Action<Joined> PlayerStart_Pos = valid_Player_Pos;
+            proxy.On("Player_Start_Pos", PlayerStart_Pos);
+
             #endregion
 
             //message for moving new postions
             #region validating the new player positions when they move on screen
-            Action<MoveMessage> AllPlayersPositions = valid_NewPositions;
-            proxy.On("PlayersStartingPositions", AllPlayersPositions);
+
+            Action<MoveMessage> Player_Pos = valid_Player_New_Pos;
+            proxy.On("PlayerStart_Pos_new", Player_Pos);
+
             #endregion
 
             //message for seni
             #region message for group chat
-            Action<string> SendGroupMessage = valid_GroupMessage;
-            proxy.On("ShowGroupMessage", SendGroupMessage);
+
+            Action<string> Send_Message = validation_Group_Message;
+            proxy.On("Show_Message", Send_Message);
+
             #endregion
 
             #endregion
@@ -200,10 +210,12 @@ namespace GameClient
         #region new code
 
         #region player spawn in code
-        private void valid_Positions(Joined Other_Players)
+
+        private void valid_Player_Pos(Joined Other_Players)
         {
             throw new NotImplementedException();
         }
+
         #endregion
 
         #endregion
@@ -212,9 +224,9 @@ namespace GameClient
 
         #region groupmessage
         //for gorup messaging
-        private void valid_GroupMessage(string textMessage)
+        private void validation_Group_Message(string TextMessage)
         {
-            Chat_Message = new FadeText(this, Vector2.Zero, textMessage);
+            Chat_Message = new FadeText(this, Vector2.Zero, TextMessage);
         }
 
         #endregion
@@ -222,12 +234,12 @@ namespace GameClient
 
         #region validate the new movement poistions 
         //for new postions
-        private void valid_NewPositions(MoveMessage newPosition)
+        private void valid_Player_New_Pos(MoveMessage newPos)
         {
             foreach (Player op in OtherPlayers)
             {
-                if (op.id.ToString() == newPosition.playerID)
-                    op.position = new Vector2(newPosition.NewX, newPosition.NewY);
+                if (op.id.ToString() == newPos.playerID)
+                    op.position = new Vector2(newPos.NewX, newPos.NewY);
             }
         }
         #endregion
@@ -387,14 +399,16 @@ namespace GameClient
                 {
                     gamerTag = login_Key.Name;
                     password = login_Key.Password;
+
                     login_Key.Clear();
+
                     InputEngine.ClearState();
 
                     
                     if (connection.State == ConnectionState.Connected)
                         if (gamerTag != null && password != null)
                         {
-                            getPlayer();
+                            get_Player();
                             subscribeToMessages();
                             CheckLogedInPlayers();
                                           
@@ -575,12 +589,12 @@ namespace GameClient
             proxy.Invoke("send_Message", new string[] { textMessage });
         }
 
-        private void valid_Player(PlayerData player)
+        private void validatePlayer(PlayerData player)
         {
             Logged_In = true;
             playerData = player;
 
-            validation_PlayerMessage = "Player has been validated gamerTag is " + player.GamerTag;
+            validation_PlayerMessage = "Player has been validated Gamertag is: " + player.GamerTag;
 
             getPlayerData();
         }
@@ -589,7 +603,7 @@ namespace GameClient
         private void getPlayerData()
         {
             proxy.Invoke<PlayerData>("getPlayer",
-                                new string[] { "popple" })
+                                new string[] { "" })
                 .ContinueWith(t =>
                 {
                     playerData = t.Result;
@@ -617,7 +631,7 @@ namespace GameClient
             proxy.On("PlayersValidated", All_Players_Logged_In);
         }
         //
-        private void getPlayer()
+        private void get_Player()
         {
             proxy.Invoke("ValidatePlayer", new string[] { gamerTag, password });
         }

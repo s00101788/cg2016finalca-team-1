@@ -14,20 +14,22 @@ namespace week12122016
         {
            new PlayerData {
                 PlayerID=1,
-                FirstName ="Paul",
-                SecondName ="Powell",
-                Tag ="popple", XP=10000 },
+                FirstName ="Michelle",
+                SecondName ="Hughes",
+                Tag ="Mknight96", XP=10000 },
 
              new PlayerData {
                 PlayerID=1,
                 FirstName ="Mark",
                 SecondName ="Sweeney",
                 Tag ="Xmar95", XP=7000 },
+
              new PlayerData {
                 PlayerID=1,
                 FirstName ="Thomas",
                 SecondName ="Crudden",
                 Tag ="Tcrudd95", XP=1000 },
+
              new PlayerData {
                 PlayerID=1,
                 FirstName ="Bubba",
@@ -100,7 +102,7 @@ namespace week12122016
         #endregion
 
         #region this is for spawning in players i think
-        public Joined AllPlayersStartingPositions(float x, float y, string playerID, string ImageName)
+        public Joined PlayerStart_Pos(float x, float y, string playerID, string ImageName)
         {
             PlayerData found = GameSate.players.FirstOrDefault(p => p.PlayerID.ToString() == playerID);
             Joined hasJoined = new Joined
@@ -111,7 +113,7 @@ namespace week12122016
                 imageName = ImageName
             };
 
-            Clients.Others.PlayersStartingPositions(new Joined
+            Clients.Others.Player_Start_Pos(new Joined
             {
                 playerID = found.PlayerID.ToString(),
                 X = x,
@@ -123,7 +125,7 @@ namespace week12122016
         #endregion
 
         #region moving players on the server end
-        public MoveMessage AllPlayersPositions(float x, float y, string playerID)
+        public MoveMessage Player_Pos(float x, float y, string playerID)
         {
             PlayerData found = GameSate.players.FirstOrDefault(p => p.PlayerID.ToString() == playerID);
             MoveMessage newPosition = new MoveMessage
@@ -133,7 +135,7 @@ namespace week12122016
                 NewY = y,
             };
 
-            Clients.Others.PlayersStartingPositions(new MoveMessage
+            Clients.Others.PlayerStart_Pos_new(new MoveMessage
             {
                 playerID = found.PlayerID.ToString(),
                 NewX = x,
@@ -147,7 +149,7 @@ namespace week12122016
         #region i think this for the chat but im not sure
         public string send_Message(string textMessage)
         {
-            Clients.All.ShowMessage(textMessage);
+            Clients.All.Show_Message(textMessage);
             
             return textMessage;
         }
