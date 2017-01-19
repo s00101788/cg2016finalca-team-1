@@ -145,7 +145,25 @@ namespace GameClient
             connection.StateChanged += Connection_StateChanged;
             connection.Start();
 
-           // List<PlayerData> list = GetScores(5);
+            // List<PlayerData> list = GetScores(5);
+
+            Action<string, string> RecivePlayer = recivePlayerMessage;
+            Action<string, Vector2[]> ReciveBarriersPositions = reciveBarriers;
+            Action<Vector2> ReciveNewPosition = reciveNewPlayerPosition;
+            Action<string, Vector2, Vector2> ReciveNewBullet = reciveNewEnemyBullet;
+            Action<Vector2> ReciveNewSuperCollectable = reciveSupercollectable;
+            Action<List<Vector2>> ReciveCollectablePositions = reciveCollectablePositions;
+            Action<Vector2> ReciveDiffrentStartposition = reciveDiffrentStartposition;
+
+            proxy.On("sendPositionCollectables", ReciveCollectablePositions);
+            proxy.On("sendBarriers", ReciveBarriersPositions);
+            proxy.On("otherStartpoint", ReciveDiffrentStartposition);
+            proxy.On("sendPlayer", RecivePlayer);
+            proxy.On("updatePosition", ReciveNewPosition);
+            proxy.On("newBullet", ReciveNewBullet);
+            proxy.On("newSuperCollectable", ReciveNewSuperCollectable);
+
+
 
 
             IsMouseVisible = true;
@@ -360,6 +378,106 @@ namespace GameClient
 
         #region Methods
 
+        #region ReciveServerInfromations and Methodes
+
+        private void reciveSupercollectable(Vector2 obj)
+        {
+            Collectables.Add(new SuperCollectable(textureSuperCollectable, obj)); //create Testing SuperCollectable
+        }
+
+        private void reciveNewEnemyBullet(string arg1, Vector2 arg2, Vector2 arg3)
+        {
+            Bullets.Add(new Bullet(arg1, Enemy.PlayerChar._texture, Enemy.PlayerChar.strength, arg2, arg3, enemyColor));
+        }
+
+        private void reciveNewPlayerPosition(Vector2 obj)
+        {
+            Enemy._position = obj;
+        }
+
+        private void reciveBarriers(string arg1, Vector2[] arg2)
+        {
+            foreach (var item in arg2)
+            {
+                Barriers.Add(new Barrier(arg1, textureBarrier, item, enemyColor));
+            }
+        }
+
+        private void recivePlayerMessage(string arg1, string arg2)
+        {
+            Enemy = createPlayer(arg1, arg2, enemyColor);
+            gameStarted = true;
+            //proxy.Invoke("GameStart", gameStarted);
+        }
+
+        private Player createPlayer(string id, string type, Color c)
+        {
+            Player temp = null;
+            if (type != null)
+            {
+
+                switch (type.ToUpper()) //check for type and create the character
+                {
+                    case "FAST":
+                        currentState = currentDisplay.Game;
+                        temp = new Player(new Character(id, textures[0], 7, 3), texHealth, startVector, c, this);
+                        break;
+                    case "NORMAL":
+                        currentState = currentDisplay.Game;
+                        temp = new Player(new Character(id, textures[1], 5, 4), texHealth, startVector, c, this);
+                        break;
+                    case "STRONG":
+                        currentState = currentDisplay.Game;
+                        temp = new Player(new Character(id, textures[2], 3, 5), texHealth, startVector, c, this);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+
+            return temp;
+        }
+
+        private void reciveCollectablePositions(List<Vector2> obj)
+        {
+            foreach (var item in obj)
+            {
+                Collectables.Add(new Collectable(textureCollectable, item));
+            }
+        }
+
+        private void reciveDiffrentStartposition(Vector2 obj)
+        {
+            player._position = obj;
+        }
+
+        public bool OutsideScreen(Sprite obj)
+        {
+            if (!obj.Rectangle.Intersects(Window.ClientBounds))
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+
+        private void sendBarriers(List<Barrier> barriers)
+        {
+            List<Vector2> temp = new List<Vector2>();
+            foreach (var item in barriers)
+            {
+                temp.Add(item._position);
+            }
+
+            proxy.Invoke("SendBarriers", temp);
+        }
+
+        #endregion
+
+
+
+
         private List<PlayerData> GetScores(int count)
         {
             using (TestDbContext db = new TestDbContext())
@@ -408,15 +526,6 @@ namespace GameClient
                 });
         }
 
-        public bool OutsideScreen(Sprite obj)
-        {
-            if (!obj.Rectangle.Intersects(Window.ClientBounds))
-            {
-                return true;
-            }
-            else
-                return false;
-        }
 
         private void LoadGameContent()
         {
@@ -453,34 +562,6 @@ namespace GameClient
             //_audioPlayer.Play();
         }
 
-        private Player createPlayer(string id, string type, Color c)
-        {
-            Player temp = null;
-            if (type != null)
-            {
-
-                switch (type.ToUpper()) //check for type and create the character
-                {
-                    case "FAST":
-                        currentState = currentDisplay.Game;
-                        temp = new Player(new Character(id, textures[0], 7, 3), texHealth, startVector, c, this);
-                        break;
-                    case "NORMAL":
-                        currentState = currentDisplay.Game;
-                        temp = new Player(new Character(id, textures[1], 5, 4), texHealth, startVector, c, this);
-                        break;
-                    case "STRONG":
-                        currentState = currentDisplay.Game;
-                        temp = new Player(new Character(id, textures[2], 3, 5), texHealth, startVector, c, this);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-
-            return temp;
-        }
         #endregion
 
         
@@ -556,12 +637,12 @@ namespace GameClient
 
                 player = createPlayer(clientID, menu.MenuAction, playerColor);
                 Enemy = new Player(new Character("Emily", textures[0], 7, 3), LoadedGameContent.Textures["square"], new Vector2(10, 10), playerColor, this);
-                //if (player != null)
-                //{
-                //    proxy.Invoke("SendPlayer", menu.MenuAction);
+                if (player != null)
+                {
+                    proxy.Invoke("SendPlayer", menu.MenuAction);
 
-                //    sendBarriers(Barriers);
-                //}
+                    sendBarriers(Barriers);
+                }
 
                 menu.MenuAction = null; //reset the selection
             }
@@ -574,7 +655,7 @@ namespace GameClient
                 if (gameStarted)
                 {
                     player.Move(newState); //check for the player movement
-                    //proxy.Invoke("UpdatePosition", player._position);
+                    proxy.Invoke("UpdatePosition", player._position);
 
                     #region Collision
                     foreach (var item in Bullets) //check if bullet hit a barrier and destroy it
@@ -627,7 +708,7 @@ namespace GameClient
                         if (newBullet != null)
                         {
                             Bullets.Add(newBullet); //add the new bullet to the list
-                            //proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
+                            proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
                         }
 
                     }
@@ -637,7 +718,7 @@ namespace GameClient
                         if (newBullet != null)
                         {
                             Bullets.Add(newBullet); //add the new bullet to the list
-                            //proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
+                            proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
                         }
 
                     }
@@ -647,7 +728,7 @@ namespace GameClient
                         if (newBullet != null)
                         {
                             Bullets.Add(newBullet); //add the new bullet to the list
-                            //proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
+                            proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
                         }
 
                     }
@@ -657,7 +738,7 @@ namespace GameClient
                         if (newBullet != null)
                         {
                             Bullets.Add(newBullet); //add the new bullet to the list
-                            //proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
+                            proxy.Invoke("NewBullet", newBullet._position, newBullet.flyDirection);
                         }
 
                     }
@@ -702,7 +783,7 @@ namespace GameClient
                     if (currentState == currentDisplay.Score)
                     {
                         gameStarted = false;
-                        //proxy.Invoke("StartGame", gameStarted);
+                        proxy.Invoke("StartGame", gameStarted);
                         if (player.score > Enemy.score)
                             gameOutcome = endGameStatuses.Win;
                         if (player.score < Enemy.score)
