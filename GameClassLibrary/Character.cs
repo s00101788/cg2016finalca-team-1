@@ -16,6 +16,18 @@ namespace GameClassLibrary
         public int movementSpeed;
         public int strength;
 
+        public int PlayerID { get; set; }
+        public string FirstName { get; set; }
+        public string SecondName { get; set; }
+        public string Password { get; set; }
+        public string Tag { get; set; }
+        public int XP { get; set; }
+        public Guid playerid;
+        public string GamerTag;
+        public int topscore;
+
+        public string GamerTagScore { get { return GamerTag + " ==> " + topscore.ToString(); } }
+
         public Character(string id, Texture2D tex, int speed, int str) : base(tex, Vector2.Zero)
         {
             ID = id;

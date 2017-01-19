@@ -11,10 +11,12 @@ namespace GameClassLibrary
     public class Collectable : Sprite
     {
         public int Value;
+        public Texture2D Tex;
 
         public Collectable(Texture2D tex, Vector2 pos) : base(tex, pos)
         {
             Value = 5;
+            Tex = tex;
 
         }
     }

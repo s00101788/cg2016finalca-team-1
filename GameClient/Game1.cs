@@ -34,8 +34,8 @@ namespace GameClient
         Color playerColor = Color.White;
         Color enemyColor = Color.Red;
 
-        enum currentDisplay { Selection, Game, Score };
-        currentDisplay currentState = currentDisplay.Selection;
+        enum currentDisplay { Selection, Game, Score, Login };
+        currentDisplay currentState = currentDisplay.Login;
 
         enum endGameStatuses { Win, Lose, Draw }
         endGameStatuses gameOutcome = endGameStatuses.Draw;
@@ -490,15 +490,19 @@ namespace GameClient
         private void CreateGameCollecables(List<CollectableData> result)
         {
 
-            //foreach (CollectableData c in result)
-            //{
-            //    new FadeText(this, Vector2.Zero,
-            //        "Delivered " + c.CollectableName +
-            //            " X: " + c.X.ToString() + " Y: " + c.X.ToString());
+            foreach (CollectableData c in result)
+            {
+                new FadeText(this, Vector2.Zero,
+                    "Delivered " + c.CollectableName +
+                        " X: " + c.X.ToString() + " Y: " + c.X.ToString());
 
-            //    spriteBatch.Draw(Collectables);
+                foreach (var item in Collectables)
+                {
+                    spriteBatch.Draw(item.Tex);
+                }
 
-            //}
+
+            }
         }
 
 
@@ -581,7 +585,7 @@ namespace GameClient
 
 
             #region new code
-            if (currentState == currentDisplay.Selection)
+            if (currentState == currentDisplay.Login)
             {
                 CheckLogedInPlayers();
 
@@ -811,14 +815,14 @@ namespace GameClient
 
         protected override void Draw(GameTime gameTime)
         {
-            { 
-            #region dump
-            //spriteBatch.Begin();
+            {
+                #region dump
+                //spriteBatch.Begin();
 
-            //if (currentState == currentDisplay.)
-            //{
+                //if (currentState == currentDisplay.)
+                //{
 
-                
+
 
                 //    GraphicsDevice.Clear(Color.CornflowerBlue);
                 //    Vector2 v = ScoreFont.MeasureString("string this");
@@ -831,68 +835,7 @@ namespace GameClient
                 //    }
                 //}
 
-                //#region new code
-                //if (currentState == gamestates.login)
-                //{
-                //    GraphicsDevice.Clear(Color.Gray);
-                //    string Message = "Press The Enter Key to continue.";
-                //    spriteBatch.DrawString(GameFont, Message, new Vector2(GraphicsDevice.Viewport.Width/2, GraphicsDevice.Viewport.Height/2), Color.LightSkyBlue);
 
-                //    if (Logged_In != false || Logged_In_Failed != false)
-                //        if (playerData != null)
-                //            spriteBatch.DrawString(GameFont, validation_PlayerMessage, new Vector2(200, 50), Color.White);
-
-
-
-
-                //    if (Players_Logged_In != null)
-                //    {
-
-                //        foreach (PlayerData player in Players_Logged_In)
-                //        {
-                //            string playerMessage = "Player:  " + player.GamerTag + " has connected to game";
-
-                //            if (player.GamerTag != playerData.GamerTag)
-                //                spriteBatch.DrawString(GameFont, playerMessage, new Vector2(100, GraphicsDevice.Viewport.Height / 2), Color.Gray);
-
-
-                //        }
-                //    }
-
-                //    //if (allLogedInPlayers.Count >= 2) ;
-                //    //    //btnSubmit.Draw(spriteBatch);
-                //}
-
-                //if (currentState == gamestates.game)
-                //{
-
-
-                //    GraphicsDevice.Clear(Color.CornflowerBlue);
-
-                //    spriteBatch.DrawString(GameFont,
-                //        message,
-                //        new Vector2(200, 20), Color.White
-                //        );
-                //    if (playerData != null)
-                //    {
-                //        spriteBatch.DrawString(GameFont,
-                //            playerData.FirstName + " is ok ",
-                //            new Vector2(20, 20), Color.White
-                //            );
-                //        spriteBatch.Draw(backGround, worldRect, Color.White);
-
-
-                //        spriteBatch.DrawString(KeyboardFont, InGameMessage, new Vector2(10, 10), Color.White);
-
-
-                //        spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red); //ms drawing the game timer message
-
-                //        spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White); //ms drawing the game countdown message
-
-                //    player.Draw(spriteBatch);
-
-                //    }
-                //    #endregion
 
                 //    spriteBatch.End();
                 //    // TODO: Add your drawing code here
@@ -900,48 +843,113 @@ namespace GameClient
 
 
                 //    base.Draw(gameTime);
-                #endregion
-                GraphicsDevice.Clear(Color.CornflowerBlue);
 
-                if (currentState == currentDisplay.Selection)
-                    menu.Draw(spriteBatch); //draw the menu
-                #region Draw the Game
-                if (currentState == currentDisplay.Game) //if game is started
+
+                #endregion
+                #region new code
+                if (currentState == currentDisplay.Login)
                 {
                     spriteBatch.Begin();
-                    spriteBatch.Draw(backgroundTexture, new Rectangle(0, 0, 800, 600), null, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0f); //draw the background
-                    if (Enemy != null)
-                        spriteBatch.DrawString(GameFont, "Score: " + Enemy.score.ToString(), new Vector2(700, 0), enemyColor);
-                    spriteBatch.DrawString(GameFont, "Score: " + player.score.ToString(), new Vector2(0, 0), playerColor);
+                    GraphicsDevice.Clear(Color.Gray);
+                    string Message = "Press The Enter Key to continue.";
+                    spriteBatch.DrawString(GameFont, Message, new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2), Color.LightSkyBlue);
+
+                    if (Logged_In != false || Logged_In_Failed != false)
+                        if (playerData != null)
+                            spriteBatch.DrawString(GameFont, validation_PlayerMessage, new Vector2(200, 50), Color.White);
+
+
+
+
+                    if (Players_Logged_In != null)
+                    {
+
+                        foreach (PlayerData player in Players_Logged_In)
+                        {
+                            string playerMessage = "Player:  " + player.GamerTag + " has connected to game";
+
+                            if (player.GamerTag != playerData.GamerTag)
+                                spriteBatch.DrawString(GameFont, playerMessage, new Vector2(100, GraphicsDevice.Viewport.Height / 2), Color.Gray);
+
+
+                        }
+                    }
                     spriteBatch.End();
-
-                    if (Enemy != null)
-                        Enemy.Draw(spriteBatch);
-
-                    player.Draw(spriteBatch, GameFont); //draw the player
-
-                    foreach (var item in Collectables)
-                    {
-                        item.Draw(spriteBatch); // draw the Collectabels at layer 0
-                    }
-
-                    foreach (var item in Bullets)
-                    {
-                        item.Draw(spriteBatch); // draw the Bullets
-                    }
-
-                    foreach (var item in Barriers)
-                    {
-                        item.Draw(spriteBatch); //draw the Barriers at layer 1
-                    }
+                    //if (allLogedInPlayers.Count >= 2) ;
+                    //    //btnSubmit.Draw(spriteBatch);
                 }
 
-                #endregion
+                if (currentState == currentDisplay.Game)
+                {
 
 
-                base.Draw(gameTime);
+                    GraphicsDevice.Clear(Color.CornflowerBlue);
+
+                    spriteBatch.DrawString(GameFont,
+                        message,
+                        new Vector2(200, 20), Color.White
+                        );
+                    if (playerData != null)
+                    {
+                        spriteBatch.DrawString(GameFont,
+                            playerData.FirstName + " is ok ",
+                            new Vector2(20, 20), Color.White
+                            );
 
 
+                        spriteBatch.DrawString(KeyboardFont, "Line 895", new Vector2(10, 10), Color.White);
+
+
+                        spriteBatch.DrawString(GameFont, timerMessage, new Vector2(20, 20), Color.Red); //ms drawing the game timer message
+
+                        spriteBatch.DrawString(GameFont, GameTimerMessage, new Vector2(GraphicsDevice.Viewport.Height / 2, 20), Color.White); //ms drawing the game countdown message
+
+                        player.Draw(spriteBatch);
+
+                    }
+                    #endregion
+                    GraphicsDevice.Clear(Color.CornflowerBlue);
+
+                    if (currentState == currentDisplay.Selection)
+                        menu.Draw(spriteBatch); //draw the menu
+                    #region Draw the Game
+                    if (currentState == currentDisplay.Game) //if game is started
+                    {
+                        spriteBatch.Begin();
+                        spriteBatch.Draw(backgroundTexture, new Rectangle(0, 0, 800, 600), null, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0f); //draw the background
+                        if (Enemy != null)
+                            spriteBatch.DrawString(GameFont, "Score: " + Enemy.score.ToString(), new Vector2(700, 0), enemyColor);
+                        spriteBatch.DrawString(GameFont, "Score: " + player.score.ToString(), new Vector2(0, 0), playerColor);
+                        spriteBatch.End();
+
+                        if (Enemy != null)
+                            Enemy.Draw(spriteBatch);
+
+                        player.Draw(spriteBatch, GameFont); //draw the player
+
+                        foreach (var item in Collectables)
+                        {
+                            item.Draw(spriteBatch); // draw the Collectabels at layer 0
+                        }
+
+                        foreach (var item in Bullets)
+                        {
+                            item.Draw(spriteBatch); // draw the Bullets
+                        }
+
+                        foreach (var item in Barriers)
+                        {
+                            item.Draw(spriteBatch); //draw the Barriers at layer 1
+                        }
+                    }
+
+                    #endregion
+
+
+                    base.Draw(gameTime);
+
+
+                }
             }
         }
 

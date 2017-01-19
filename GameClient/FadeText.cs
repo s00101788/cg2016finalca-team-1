@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using GameClassLibrary;
 using System.Threading.Tasks;
 
 namespace TextEffects
@@ -31,7 +32,7 @@ namespace TextEffects
             if(faders.Count() > 0)
             {
                 Vector2 b = basePosition;
-                var font = Game.Services.GetService<SpriteFont>();
+                var font = LoadedGameContent.Fonts["message"];
                 Vector2 fontsize = font.MeasureString("Y");
                 foreach (FadeText ft in faders)
                 {
